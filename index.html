@@ -1,0 +1,1608 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>وجدان تليكوم | السجل اليومي</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap">
+
+<style>
+:root{
+  --brand:#2563eb;--brand-dark:#1e40af;--brand-light:#dbeafe;
+  --success:#16a34a;--success-light:#dcfce7;
+  --danger:#dc2626;--danger-light:#fee2e2;
+  --warning:#ea580c;--warning-light:#ffedd5;
+  --info:#0891b2;--info-light:#cffafe;
+  --purple:#7c3aed;--purple-light:#ede9fe;
+}
+body{font-family:'Cairo','Segoe UI',Tahoma,sans-serif;background:#f1f5f9;font-size:14.5px;color:#1e293b}
+h1,h2,h3,h4,h5,h6{font-weight:700}
+
+.app-header{background:linear-gradient(135deg,#1e3a8a 0%,#2563eb 100%);color:#fff;box-shadow:0 4px 12px rgba(0,0,0,.1);position:sticky;top:0;z-index:1030}
+.brand-logo{width:46px;height:46px;border-radius:12px;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;border:1.5px solid rgba(255,255,255,.25)}
+.brand-title{font-size:18px;font-weight:800;line-height:1.2}
+.brand-sub{font-size:12px;opacity:.85}
+
+/* شريط الملف */
+.file-bar{background:#fff;border-radius:12px;padding:12px 16px;border:1px solid #e2e8f0;box-shadow:0 1px 3px rgba(0,0,0,.05);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.file-bar .status-badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:5px 10px;border-radius:20px}
+.file-bar .status-badge.connected{background:var(--success-light);color:var(--success)}
+.file-bar .status-badge.disconnected{background:#f1f5f9;color:#64748b}
+.file-bar .status-badge.working{background:var(--warning-light);color:var(--warning)}
+
+.stat-card{background:#fff;border-radius:12px;padding:14px 16px;border:1px solid #e2e8f0;box-shadow:0 1px 3px rgba(0,0,0,.05);position:relative;overflow:hidden;transition:transform .15s,box-shadow .15s;height:100%}
+.stat-card:hover{transform:translateY(-2px);box-shadow:0 8px 16px rgba(0,0,0,.08)}
+.stat-card::before{content:'';position:absolute;top:0;right:0;left:0;height:3px;background:var(--accent,#2563eb)}
+.stat-icon{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;background:var(--accent-bg,#dbeafe);color:var(--accent,#2563eb)}
+.stat-label{font-size:12px;color:#64748b;font-weight:600}
+.stat-value{font-size:19px;font-weight:800;direction:ltr;text-align:right;letter-spacing:-.3px}
+.stat-sub{font-size:11px;color:#94a3b8}
+
+.totals-card{border-radius:12px;padding:16px;color:#fff;box-shadow:0 4px 10px rgba(0,0,0,.1);position:relative;overflow:hidden;height:100%}
+.totals-card::after{content:'';position:absolute;top:-25px;left:-25px;width:110px;height:110px;border-radius:50%;background:rgba(255,255,255,.08)}
+.totals-card.revenue{background:linear-gradient(135deg,#059669,#10b981)}
+.totals-card.expenses{background:linear-gradient(135deg,#b91c1c,#ef4444)}
+.totals-card.net{background:linear-gradient(135deg,#1e40af,#3b82f6)}
+.totals-card.net.negative{background:linear-gradient(135deg,#991b1b,#dc2626)}
+.totals-card .t-label{font-size:12.5px;opacity:.9;font-weight:600}
+.totals-card .t-value{font-size:22px;font-weight:800;direction:ltr;text-align:right}
+.totals-card .t-sub{font-size:11px;opacity:.85}
+
+.panel{background:#fff;border-radius:12px;border:1px solid #e2e8f0;box-shadow:0 1px 3px rgba(0,0,0,.05);overflow:hidden}
+.panel-head{padding:13px 16px;border-bottom:1px solid #e2e8f0;background:#f8fafc;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.panel-title{font-size:15px;font-weight:700;margin:0;display:flex;align-items:center;gap:8px}
+.badge-count{background:var(--brand);color:#fff;font-size:11px;padding:2px 9px;border-radius:20px;font-weight:700}
+
+.records-table{width:100%;border-collapse:separate;border-spacing:0;font-size:13px;margin:0;min-width:1400px}
+.records-table thead th{background:#f1f5f9;color:#334155;font-size:12px;font-weight:700;text-align:center;vertical-align:middle;padding:9px 6px;border:1px solid #cbd5e1;white-space:nowrap}
+.records-table thead tr.date-row th{background:linear-gradient(135deg,#1e3a8a,#2563eb);color:#fff;font-size:14px;font-weight:700;padding:11px 10px;border-color:#1e3a8a}
+.date-header-box{display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap}
+.date-header-box .date-item{display:inline-flex;align-items:center;gap:7px;padding:4px 12px;border-radius:20px;background:rgba(255,255,255,.15);font-size:13px;font-weight:600}
+.records-table thead tr.sub-header th{background:#e2e8f0;font-size:11.5px;font-weight:700;padding:7px 6px;color:#475569}
+.records-table thead th.section-main{background:#dbeafe;color:#1e40af;font-size:13px}
+.records-table thead th.section-programming{background:#ede9fe;color:#6d28d9}
+.records-table thead th.section-goods{background:#ffedd5;color:#c2410c}
+.records-table thead th.section-income{background:#dcfce7;color:#15803d}
+.records-table thead th.section-expenses{background:#fee2e2;color:#b91c1c}
+.records-table thead th.section-rounds{background:#cffafe;color:#0e7490}
+.records-table tbody td{padding:8px 6px;border:1px solid #e2e8f0;vertical-align:middle;text-align:center;background:#fff}
+.records-table tbody tr:hover td{background:#f8fafc}
+.records-table tbody tr:nth-child(even) td{background:#fafbfc}
+.records-table tbody tr:nth-child(even):hover td{background:#f1f5f9}
+.money-amount{font-weight:700;font-size:13.5px;direction:ltr;display:block;color:#1e293b}
+.money-amount.zero{color:#94a3b8;font-weight:500}
+.money-details{font-size:11.5px;color:#475569;display:block;line-height:1.35;word-break:break-word;max-width:150px;margin:0 auto;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.cell-date{font-weight:600;white-space:nowrap;font-size:12.5px;color:#1e293b}
+.cell-recno{font-family:'Courier New',monospace;font-size:11.5px;color:#64748b}
+.cell-employee{font-size:12.5px}
+.cell-notes{font-size:11.5px;color:#475569;text-align:right;max-width:170px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;line-height:1.35}
+.action-buttons{display:flex;gap:4px;justify-content:center}
+.rounds-badge{display:inline-block;font-size:10px;font-weight:700;padding:1px 7px;border-radius:20px;margin-top:3px}
+.rounds-badge.income{background:var(--success-light);color:var(--success)}
+.rounds-badge.expense{background:var(--danger-light);color:var(--danger)}
+
+.summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+.summary-item{padding:10px 12px;border-radius:9px;background:#f8fafc;border:1px solid #e2e8f0}
+.summary-item .s-label{font-size:11.5px;color:#64748b;font-weight:600;display:block}
+.summary-item .s-value{font-size:16px;font-weight:800;color:#1e293b;direction:ltr;display:block;text-align:right}
+.summary-item.net{background:var(--brand-light);border-color:#bfdbfe}
+.summary-item.net.negative{background:var(--danger-light);border-color:#fecaca}
+
+.empty-state{text-align:center;padding:55px 20px;color:#64748b}
+.empty-state .icon{font-size:52px;opacity:.4;margin-bottom:12px;display:block}
+.empty-state h5{font-size:16px;color:#1e293b;margin-bottom:6px}
+
+.btn-action{width:30px;height:30px;padding:0;display:inline-flex;align-items:center;justify-content:center;border-radius:6px;font-size:13px;border:1px solid #e2e8f0;background:#fff;color:#64748b;transition:all .12s}
+.btn-action:hover{background:var(--brand-light);color:var(--brand);border-color:var(--brand)}
+.btn-action.danger:hover{background:var(--danger-light);color:var(--danger);border-color:var(--danger)}
+
+.form-label{font-size:12.5px;font-weight:600;color:#334155;margin-bottom:5px}
+.form-control,.form-select{font-size:13.5px}
+.form-control:focus,.form-select:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(37,99,235,.12)}
+
+.app-footer{padding:18px;text-align:center;font-size:12px;color:#64748b}
+
+#printArea{display:none}
+@media print{
+  @page{size:A4 landscape;margin:10mm}
+  body{background:#fff;font-size:11px}
+  .app-header,.no-print,.app-footer,.toast-container,#printArea ~ *{display:none!important}
+  #printArea{display:block!important;color:#000}
+  .print-header{text-align:center;border-bottom:2.5px solid #000;padding-bottom:8px;margin-bottom:12px}
+  .print-header h1{font-size:20px;margin-bottom:3px}
+  .print-header .sub{font-size:12px;color:#444}
+  .print-date-info{display:flex;justify-content:center;gap:20px;flex-wrap:wrap;font-size:11.5px;margin-bottom:12px;padding:8px;background:#f0f0f0;border:1px solid #999;border-radius:4px}
+  .print-table{width:100%;border-collapse:collapse;font-size:10px;margin-bottom:12px}
+  .print-table th,.print-table td{border:1px solid #555;padding:4px 5px;text-align:center;vertical-align:middle}
+  .print-table th{background:#e5e7eb;font-weight:700}
+  .print-table .sub-th{background:#f0f0f0;font-size:9.5px}
+  .print-totals{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-top:12px}
+  .print-total-item{border:1px solid #777;padding:5px 8px;display:flex;justify-content:space-between;font-size:11px}
+  .print-footer{margin-top:16px;padding-top:8px;border-top:1.5px dashed #999;text-align:center;font-size:10.5px;color:#555}
+  .print-record-block{border:1px solid #777;padding:10px;margin-bottom:10px}
+  .print-record-block h3{font-size:12px;margin-bottom:8px;background:#e5e7eb;padding:4px 8px;margin:-10px -10px 8px -10px}
+  .print-record-row{display:flex;justify-content:space-between;font-size:11px;padding:3px 0;border-bottom:1px dotted #ccc}
+}
+</style>
+</head>
+<body>
+
+<header class="app-header no-print">
+  <div class="container-fluid py-2 px-3">
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+      <div class="d-flex align-items-center gap-2">
+        <div class="brand-logo">و</div>
+        <div>
+          <div class="brand-title">وجدان تليكوم</div>
+          <div class="brand-sub">السجل اليومي للعمليات</div>
+        </div>
+      </div>
+      <div class="d-flex gap-2">
+        <button type="button" class="btn btn-outline-light btn-sm" id="btnPrintTop">
+          <i class="bi bi-printer"></i> <span class="d-none d-md-inline">طباعة</span>
+        </button>
+        <button type="button" class="btn btn-light btn-sm fw-bold" id="btnAddTop">
+          <i class="bi bi-plus-lg"></i> <span class="d-none d-sm-inline">إضافة سجل</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="container-fluid py-3 px-3">
+
+  <!-- شريط ربط ملف Excel -->
+  <div class="file-bar mb-3 no-print">
+    <div class="d-flex align-items-center gap-2 flex-wrap">
+      <button type="button" class="btn btn-success btn-sm" id="btnConnectFile">
+        <i class="bi bi-file-earmark-excel"></i> ربط ملف Excel
+      </button>
+      <button type="button" class="btn btn-outline-success btn-sm" id="btnSaveToFile" disabled>
+        <i class="bi bi-save"></i> حفظ في الملف
+      </button>
+      <button type="button" class="btn btn-outline-secondary btn-sm" id="btnDisconnectFile" style="display:none">
+        <i class="bi bi-plug"></i> فصل
+      </button>
+      <span class="status-badge disconnected" id="fileStatus">
+        <i class="bi bi-hdd"></i> غير مرتبط — يعمل على localStorage
+      </span>
+    </div>
+    <div class="d-flex align-items-center gap-3">
+      <div class="form-check form-switch mb-0">
+        <input class="form-check-input" type="checkbox" id="autoSaveToggle" checked>
+        <label class="form-check-label small fw-semibold" for="autoSaveToggle">حفظ تلقائي</label>
+      </div>
+      <input type="file" id="legacyFileInput" accept=".csv,.txt" style="display:none">
+    </div>
+  </div>
+
+  <div class="row g-2 mb-3 no-print" id="dashboardCards"></div>
+  <div class="row g-2 mb-3 no-print" id="totalsCards"></div>
+
+  <div class="panel mb-3 no-print">
+    <div class="panel-head">
+      <h2 class="panel-title"><i class="bi bi-funnel"></i> البحث والتصفية</h2>
+      <button type="button" class="btn btn-outline-secondary btn-sm" id="btnToggleFilter">
+        <i class="bi bi-chevron-up"></i> إخفاء
+      </button>
+    </div>
+    <div class="p-3" id="filterBody">
+      <div class="row g-2">
+        <div class="col-12 col-lg-4">
+          <label class="form-label" for="filterSearch">بحث في التفاصيل والملاحظات</label>
+          <div class="input-group input-group-sm">
+            <span class="input-group-text"><i class="bi bi-search"></i></span>
+            <input type="text" class="form-control" id="filterSearch" placeholder="اكتب كلمة للبحث...">
+          </div>
+        </div>
+        <div class="col-6 col-md-3 col-lg-2">
+          <label class="form-label" for="filterFrom">من تاريخ</label>
+          <input type="date" class="form-control form-control-sm" id="filterFrom">
+        </div>
+        <div class="col-6 col-md-3 col-lg-2">
+          <label class="form-label" for="filterTo">إلى تاريخ</label>
+          <input type="date" class="form-control form-control-sm" id="filterTo">
+        </div>
+        <div class="col-6 col-md-3 col-lg-2">
+          <label class="form-label" for="filterType">نوع العملية</label>
+          <select class="form-select form-select-sm" id="filterType">
+            <option value="all">جميع العمليات</option>
+            <option value="maintenance">صيانة</option>
+            <option value="programming">برمجة</option>
+            <option value="goods">بضاعة</option>
+            <option value="income">قبض</option>
+            <option value="expenses">صرف</option>
+            <option value="rounds">جولات</option>
+          </select>
+        </div>
+        <div class="col-6 col-md-3 col-lg-2">
+          <label class="form-label" for="filterEmployee">الموظف</label>
+          <select class="form-select form-select-sm" id="filterEmployee">
+            <option value="all">جميع الموظفين</option>
+          </select>
+        </div>
+      </div>
+      <div class="d-flex flex-wrap gap-2 mt-3 pt-3 border-top">
+        <button type="button" class="btn btn-primary btn-sm" id="btnApplyFilter"><i class="bi bi-search"></i> بحث</button>
+        <button type="button" class="btn btn-outline-secondary btn-sm" id="btnResetFilter"><i class="bi bi-arrow-counterclockwise"></i> إعادة تعيين</button>
+        <button type="button" class="btn btn-outline-dark btn-sm" id="btnPrintList"><i class="bi bi-printer"></i> طباعة</button>
+        <button type="button" class="btn btn-outline-success btn-sm" id="btnExportExcel"><i class="bi bi-file-earmark-excel"></i> تصدير Excel</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel mb-3 no-print">
+    <div class="panel-head">
+      <h2 class="panel-title"><i class="bi bi-clipboard-data"></i> ملخص السجل اليومي</h2>
+      <div class="d-flex align-items-center gap-2 flex-wrap">
+        <label for="summaryDate" class="form-label mb-0">التاريخ:</label>
+        <input type="date" id="summaryDate" class="form-control form-control-sm" style="width:auto">
+        <button type="button" class="btn btn-outline-secondary btn-sm" id="btnSummaryToday">اليوم</button>
+      </div>
+    </div>
+    <div class="p-3"><div class="summary-grid" id="summaryGrid"></div></div>
+  </div>
+
+  <div class="panel mb-3 no-print">
+    <div class="panel-head">
+      <h2 class="panel-title">
+        <i class="bi bi-table"></i> سجلات العمليات
+        <span class="badge-count" id="recordsCountBadge">0</span>
+      </h2>
+      <button type="button" class="btn btn-outline-secondary btn-sm" id="btnSortDate">
+        <i class="bi bi-sort-down"></i> <span id="sortLabel">الأحدث أولاً</span>
+      </button>
+    </div>
+    <div class="table-responsive">
+      <table class="records-table" id="recordsTable">
+        <thead>
+          <tr class="date-row"><th colspan="17"><div class="date-header-box" id="dateHeaderBox"></div></th></tr>
+          <tr>
+            <th rowspan="2" style="vertical-align:middle">التاريخ</th>
+            <th rowspan="2" style="vertical-align:middle">رقم السجل</th>
+            <th rowspan="2" style="vertical-align:middle">الموظف</th>
+            <th colspan="2" class="section-main">🔧 صيانة</th>
+            <th colspan="2" class="section-programming">💻 برمجة</th>
+            <th colspan="2" class="section-goods">📦 بضاعة</th>
+            <th colspan="2" class="section-income">💰 قبض</th>
+            <th colspan="2" class="section-expenses">💸 صرف</th>
+            <th colspan="2" class="section-rounds">🚗 جولات</th>
+            <th rowspan="2" style="vertical-align:middle">ملاحظات</th>
+            <th rowspan="2" style="vertical-align:middle">الإجراءات</th>
+          </tr>
+          <tr class="sub-header">
+            <th>قيمة</th><th>تفاصيل</th>
+            <th>قيمة</th><th>تفاصيل</th>
+            <th>قيمة</th><th>تفاصيل</th>
+            <th>قيمة</th><th>تفاصيل</th>
+            <th>قيمة</th><th>تفاصيل</th>
+            <th>قيمة</th><th>تفاصيل</th>
+          </tr>
+        </thead>
+        <tbody id="recordsTableBody"></tbody>
+      </table>
+    </div>
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 p-3 border-top bg-light" id="paginationWrap">
+      <div class="small text-muted fw-semibold" id="paginationInfo"></div>
+      <nav class="d-flex gap-1 flex-wrap" id="paginationNav"></nav>
+    </div>
+  </div>
+
+</main>
+
+<footer class="app-footer no-print">
+  © <span id="footerYear"></span> وجدان تليكوم — السجل اليومي
+</footer>
+
+<!-- Modals -->
+<div class="modal fade" id="recordModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header bg-light">
+        <h5 class="modal-title" id="recordModalTitle"><i class="bi bi-plus-circle"></i> إضافة سجل يومي</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form id="recordForm" novalidate>
+        <div class="modal-body">
+          <div class="mb-3">
+            <h6 class="text-primary fw-bold pb-2 mb-3 border-bottom"><i class="bi bi-info-circle"></i> بيانات عامة</h6>
+            <div class="row g-2">
+              <div class="col-12 col-md-4">
+                <label class="form-label" for="formDate">التاريخ <span class="text-danger">*</span></label>
+                <input type="date" class="form-control" id="formDate" required>
+                <div class="text-danger small mt-1 fw-semibold" id="err-formDate"></div>
+              </div>
+              <div class="col-12 col-md-4">
+                <label class="form-label" for="formRecordNumber">رقم السجل</label>
+                <input type="text" class="form-control" id="formRecordNumber" placeholder="REC-0001">
+              </div>
+              <div class="col-12 col-md-4">
+                <label class="form-label" for="formEmployee">اسم الموظف</label>
+                <input type="text" class="form-control" id="formEmployee" placeholder="اسم الموظف">
+              </div>
+            </div>
+          </div>
+          <div id="formSections"></div>
+          <div class="mb-2">
+            <h6 class="text-primary fw-bold pb-2 mb-3 border-bottom"><i class="bi bi-journal-text"></i> ملاحظات</h6>
+            <textarea class="form-control" id="formNotes" rows="3" placeholder="أي ملاحظات إضافية..."></textarea>
+          </div>
+          <div class="alert alert-danger d-none" id="formAlert"></div>
+        </div>
+        <div class="modal-footer bg-light">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">إلغاء</button>
+          <button type="submit" class="btn btn-primary" id="btnSaveRecord"><i class="bi bi-check2-circle"></i> حفظ السجل</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="viewModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header bg-light">
+        <h5 class="modal-title"><i class="bi bi-eye"></i> تفاصيل السجل</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="viewModalBody"></div>
+      <div class="modal-footer bg-light">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">إغلاق</button>
+        <button type="button" class="btn btn-primary" id="btnPrintFromView"><i class="bi bi-printer"></i> طباعة</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="confirmModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title"><i class="bi bi-exclamation-triangle"></i> تأكيد الحذف</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="confirmModalBody"></div>
+      <div class="modal-footer bg-light">
+        <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">إلغاء</button>
+        <button type="button" class="btn btn-danger btn-sm" id="btnConfirmDelete"><i class="bi bi-trash3"></i> احذف</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="printArea"></div>
+<div class="toast-container position-fixed top-0 start-0 p-3" id="toastContainer" style="z-index:2000"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+(function(){
+'use strict';
+
+/* ============================================================
+   الثوابت
+============================================================ */
+const STORAGE_KEY = 'wijdan_telecom_records_v1';
+const PAGE_SIZE = 10;
+const SHOP_NAME = 'وجدان تليكوم';
+
+const SECTIONS = [
+  { key:'maintenance', label:'صيانة', icon:'🔧', cls:'section-main',       color:'#2563eb', bg:'#dbeafe' },
+  { key:'programming', label:'برمجة', icon:'💻', cls:'section-programming', color:'#7c3aed', bg:'#ede9fe' },
+  { key:'goods',       label:'بضاعة', icon:'📦', cls:'section-goods',       color:'#ea580c', bg:'#ffedd5' },
+  { key:'income',      label:'قبض',   icon:'💰', cls:'section-income',      color:'#16a34a', bg:'#dcfce7' },
+  { key:'expenses',    label:'صرف',   icon:'💸', cls:'section-expenses',    color:'#dc2626', bg:'#fee2e2' },
+  { key:'rounds',      label:'جولات', icon:'🚗', cls:'section-rounds',      color:'#0891b2', bg:'#cffafe', hasType:true }
+];
+
+// رؤوس أعمدة ملف CSV
+const CSV_HEADERS = [
+  'id','date','recordNumber','employee',
+  'maintenance_amount','maintenance_details',
+  'programming_amount','programming_details',
+  'goods_amount','goods_details',
+  'income_amount','income_details',
+  'expenses_amount','expenses_details',
+  'rounds_amount','rounds_type','rounds_details',
+  'notes'
+];
+
+/* ============================================================
+   الحالة
+============================================================ */
+const state = {
+  records: [],
+  filtered: [],
+  currentPage: 1,
+  sortDesc: true,
+  editingId: null,
+  deletingId: null,
+  viewingId: null
+};
+
+// حالة ملف Excel
+const fileState = {
+  handle: null,        // FileSystemFileHandle
+  connected: false,
+  autoSave: true,
+  saving: false
+};
+
+/* ============================================================
+   أدوات مساعدة
+============================================================ */
+const $ = sel => document.querySelector(sel);
+
+function generateId(){
+  return 'rec_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2,8);
+}
+function todayISO(){
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function formatNumber(n){ return (Number(n)||0).toLocaleString('en-US', { maximumFractionDigits: 2 }); }
+function formatMoney(n){ return formatNumber(n) + ' ر.ي'; }
+
+function formatGregorian(iso){
+  if(!iso) return '—';
+  const d = new Date(iso + 'T00:00:00');
+  if(isNaN(d)) return iso;
+  return d.toLocaleDateString('ar-EG-u-nu-latn', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+}
+function formatGregorianShort(iso){
+  if(!iso) return '—';
+  const d = new Date(iso + 'T00:00:00');
+  if(isNaN(d)) return iso;
+  return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
+}
+function formatHijri(date){
+  if(!date) return '—';
+  try {
+    const d = (typeof date === 'string') ? new Date(date + 'T00:00:00') : date;
+    if(isNaN(d)) return '—';
+    return new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura-nu-latn', {
+      day:'numeric', month:'long', year:'numeric'
+    }).format(d);
+  } catch(e){ return '—'; }
+}
+function escapeHTML(str){
+  if(str == null) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+function numVal(v){ const n = parseFloat(v); return isNaN(n) || n < 0 ? 0 : n; }
+function stripNewlines(s){ return String(s || '').replace(/[\r\n]+/g, ' ').trim(); }
+
+/* ============================================================
+   التنبيهات
+============================================================ */
+function showToast(message, type){
+  const container = $('#toastContainer');
+  const el = document.createElement('div');
+  const cls = { success:'bg-success', error:'bg-danger', info:'bg-primary' }[type] || 'bg-dark';
+  const icon = { success:'check-circle-fill', error:'x-circle-fill', info:'info-circle-fill' }[type] || 'info-circle-fill';
+  el.className = `toast align-items-center text-white ${cls} border-0 show`;
+  el.innerHTML = `<div class="d-flex"><div class="toast-body d-flex align-items-center gap-2">
+    <i class="bi bi-${icon}"></i> ${escapeHTML(message)}</div>
+    <button type="button" class="btn-close btn-close-white me-2 m-auto"></button></div>`;
+  container.appendChild(el);
+  el.querySelector('.btn-close').onclick = () => el.remove();
+  setTimeout(() => { el.style.transition='opacity .3s'; el.style.opacity='0'; setTimeout(() => el.remove(), 320); }, 2800);
+}
+
+/* ============================================================
+   المودالات
+============================================================ */
+function getModal(id){ return bootstrap.Modal.getOrCreateInstance(document.getElementById(id)); }
+
+/* ============================================================
+   التخزين المحلي (localStorage)
+============================================================ */
+function loadRecordsFromLocal(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return [];
+    const data = JSON.parse(raw);
+    return Array.isArray(data) ? data.map(normalizeRecord) : [];
+  }catch(e){ console.error(e); return []; }
+}
+function saveRecordsToLocal(){
+  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state.records)); return true; }
+  catch(e){ console.error(e); return false; }
+}
+
+function normalizeRecord(r){
+  const out = {
+    id: r.id || generateId(),
+    date: r.date || todayISO(),
+    recordNumber: r.recordNumber || '',
+    employee: r.employee || '',
+    notes: r.notes || ''
+  };
+  SECTIONS.forEach(s => {
+    const src = r[s.key] || {};
+    out[s.key] = { amount: numVal(src.amount), details: src.details || '' };
+    if(s.hasType) out[s.key].type = src.type === 'expense' ? 'expense' : 'income';
+  });
+  return out;
+}
+
+/* ============================================================
+   التخزين الموحد — localStorage + ملف Excel (إذا مرتبط)
+============================================================ */
+async function persistRecords(){
+  saveRecordsToLocal();
+  if(fileState.connected && fileState.autoSave){
+    await saveToFile(true); // silent
+  }
+}
+
+/* ============================================================
+   معالجة ملف CSV (Excel-compatible)
+============================================================ */
+function generateCSV(records){
+  const esc = v => {
+    const s = String(v == null ? '' : v);
+    if(s.includes(',') || s.includes('"') || s.includes('\n') || s.includes('\r')){
+      return '"' + s.replace(/"/g, '""') + '"';
+    }
+    return s;
+  };
+
+  const lines = [CSV_HEADERS.join(',')];
+
+  records.forEach(r => {
+    const row = [
+      r.id || '',
+      r.date || '',
+      stripNewlines(r.recordNumber),
+      stripNewlines(r.employee),
+      numVal(r.maintenance?.amount), stripNewlines(r.maintenance?.details),
+      numVal(r.programming?.amount), stripNewlines(r.programming?.details),
+      numVal(r.goods?.amount),       stripNewlines(r.goods?.details),
+      numVal(r.income?.amount),      stripNewlines(r.income?.details),
+      numVal(r.expenses?.amount),    stripNewlines(r.expenses?.details),
+      numVal(r.rounds?.amount),
+      r.rounds?.type || 'income',
+      stripNewlines(r.rounds?.details),
+      stripNewlines(r.notes)
+    ].map(esc);
+    lines.push(row.join(','));
+  });
+
+  return lines.join('\r\n');
+}
+
+function parseCSV(text){
+  // إزالة BOM
+  text = text.replace(/^\ufeff/, '');
+
+  const rows = [];
+  let cur = '';
+  let row = [];
+  let inQuotes = false;
+
+  for(let i = 0; i < text.length; i++){
+    const ch = text[i];
+    const next = text[i+1];
+
+    if(inQuotes){
+      if(ch === '"' && next === '"'){ cur += '"'; i++; }
+      else if(ch === '"'){ inQuotes = false; }
+      else cur += ch;
+    } else {
+      if(ch === '"') inQuotes = true;
+      else if(ch === ','){
+        row.push(cur); cur = '';
+      } else if(ch === '\n'){
+        row.push(cur); cur = '';
+        if(row.length > 1 || row[0] !== '') rows.push(row);
+        row = [];
+      } else if(ch === '\r'){
+        // تجاهل
+      } else cur += ch;
+    }
+  }
+  // آخر سطر
+  if(cur !== '' || row.length){
+    row.push(cur);
+    if(row.length > 1 || row[0] !== '') rows.push(row);
+  }
+
+  if(rows.length < 2) return [];
+
+  // تخطي صف الرؤوس
+  const dataRows = rows.slice(1);
+
+  return dataRows.map(cols => {
+    const obj = {};
+    CSV_HEADERS.forEach((h, i) => { obj[h] = cols[i] != null ? cols[i] : ''; });
+
+    const rec = {
+      id: obj.id || generateId(),
+      date: obj.date || todayISO(),
+      recordNumber: obj.recordNumber || '',
+      employee: obj.employee || '',
+      notes: obj.notes || ''
+    };
+
+    SECTIONS.forEach(s => {
+      const amount = numVal(obj[s.key + '_amount']);
+      const details = obj[s.key + '_details'] || '';
+      rec[s.key] = { amount, details };
+      if(s.hasType){
+        rec[s.key].type = obj[s.key + '_type'] === 'expense' ? 'expense' : 'income';
+      }
+    });
+
+    return rec;
+  }).filter(r => r.id && (r.date || r.recordNumber || r.employee || r.notes || SECTIONS.some(s => r[s.key].amount > 0 || r[s.key].details)));
+}
+
+/* ============================================================
+   File System Access API
+============================================================ */
+async function connectFile(){
+  if(!window.showOpenFilePicker){
+    // بديل: input file
+    $('#legacyFileInput').click();
+    return;
+  }
+  try{
+    const [handle] = await window.showOpenFilePicker({
+      types: [{
+        description: 'ملف Excel / CSV',
+        accept: { 'text/csv': ['.csv'], 'text/plain': ['.txt'] }
+      }],
+      multiple: false,
+      excludeAcceptAllOption: false
+    });
+
+    fileState.handle = handle;
+
+    // طلب صلاحية الكتابة
+    const perm = await handle.requestPermission({ mode: 'readwrite' });
+    if(perm !== 'granted'){
+      showToast('لم يتم منح صلاحية الكتابة — سيتم الفتح للقراءة فقط', 'info');
+    }
+
+    // قراءة الملف الحالي
+    const file = await handle.getFile();
+    await importFromFile(file);
+
+    fileState.connected = true;
+    updateFileUI('connected', `مرتبط: ${file.name}`);
+    showToast('تم ربط الملف وتحميل البيانات بنجاح', 'success');
+
+  }catch(err){
+    if(err && err.name === 'AbortError') return;
+    console.error(err);
+    showToast('تعذر ربط الملف', 'error');
+  }
+}
+
+async function importFromFile(file){
+  const text = await readFileTextSafe(file);
+  const records = parseCSV(text);
+
+  // نستخدم بيانات الملف إن كانت صالحة، وإلا نترك الحالي
+  if(records.length > 0){
+    state.records = records;
+  } else {
+    // الملف فارغ أو فارغ من البيانات → نبقي البيانات الحالية ونطلب حفظها إليه
+    showToast('الملف فارغ — سيتم حفظ السجلات الحالية فيه عند أول تعديل', 'info');
+  }
+
+  saveRecordsToLocal();
+  refreshAll();
+}
+
+async function readFileTextSafe(file){
+  const buf = await file.arrayBuffer();
+  let text = new TextDecoder('utf-8', { fatal:false }).decode(buf);
+
+  // إذا كان هناك العديد من الأحرف التالفة → جرّب Windows-1256 (ترميز عربي شائع من Excel)
+  const badCount = (text.match(/\uFFFD/g) || []).length;
+  if(badCount > 3){
+    try {
+      text = new TextDecoder('windows-1256').decode(buf);
+    } catch(e){ /* ignore */ }
+  }
+  return text;
+}
+
+async function saveToFile(silent){
+  if(!fileState.handle || fileState.saving) return false;
+
+  fileState.saving = true;
+  if(!silent) updateFileUI('working', 'جارٍ الحفظ...');
+
+  try{
+    // التحقق من الصلاحية
+    let perm = await fileState.handle.queryPermission({ mode: 'readwrite' });
+    if(perm !== 'granted'){
+      perm = await fileState.handle.requestPermission({ mode: 'readwrite' });
+      if(perm !== 'granted'){
+        showToast('تم رفض صلاحية الكتابة', 'error');
+        fileState.saving = false;
+        updateFileUI('connected', fileState.handle.name);
+        return false;
+      }
+    }
+
+    const writable = await fileState.handle.createWritable();
+    // BOM لضمان قراءة Excel العربية بشكل صحيح
+    await writable.write('\ufeff' + generateCSV(state.records));
+    await writable.close();
+
+    if(!silent){
+      showToast('تم الحفظ في الملف', 'success');
+      updateFileUI('connected', `مرتبط: ${fileState.handle.name}`);
+    }
+    fileState.saving = false;
+    return true;
+
+  }catch(err){
+    console.error(err);
+    fileState.saving = false;
+    showToast('تعذر الحفظ في الملف', 'error');
+    updateFileUI('connected', fileState.handle?.name || '');
+    return false;
+  }
+}
+
+function disconnectFile(){
+  fileState.handle = null;
+  fileState.connected = false;
+  updateFileUI('disconnected', 'غير مرتبط — يعمل على localStorage');
+  showToast('تم فصل الملف', 'info');
+}
+
+/* ============================================================
+   واجهة حالة الملف
+============================================================ */
+function updateFileUI(state_, text){
+  const badge = $('#fileStatus');
+  const btnSave = $('#btnSaveToFile');
+  const btnDisconnect = $('#btnDisconnectFile');
+  const btnConnect = $('#btnConnectFile');
+
+  badge.className = 'status-badge ' + state_;
+  badge.innerHTML = '<i class="bi bi-hdd"></i> ' + escapeHTML(text);
+
+  if(state_ === 'connected'){
+    btnSave.disabled = false;
+    btnDisconnect.style.display = '';
+    btnConnect.innerHTML = '<i class="bi bi-folder2-open"></i> تغيير الملف';
+  } else if(state_ === 'working'){
+    btnSave.disabled = true;
+    btnDisconnect.style.display = '';
+    btnConnect.innerHTML = '<i class="bi bi-folder2-open"></i> تغيير الملف';
+  } else {
+    btnSave.disabled = true;
+    btnDisconnect.style.display = 'none';
+    btnConnect.innerHTML = '<i class="bi bi-file-earmark-excel"></i> ربط ملف Excel';
+  }
+}
+
+/* ============================================================
+   التعامل مع input file (البديل)
+============================================================ */
+function handleLegacyFileInput(e){
+  const file = e.target.files[0];
+  if(!file) return;
+
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try{
+      const text = ev.target.result;
+      const records = parseCSV(text);
+      if(records.length > 0){
+        state.records = records;
+        saveRecordsToLocal();
+        refreshAll();
+        showToast('تم استيراد ' + records.length + ' سجل', 'success');
+      } else {
+        showToast('الملف فارغ أو غير صالح', 'error');
+      }
+    }catch(err){
+      console.error(err);
+      showToast('خطأ في قراءة الملف', 'error');
+    }
+  };
+  reader.readAsText(file, 'UTF-8');
+  e.target.value = '';
+}
+
+/* ============================================================
+   الحسابات
+============================================================ */
+function calculateTotals(records){
+  const t = { maintenance:0, programming:0, goods:0, income:0, expenses:0, rounds:0, roundsIncome:0, roundsExpense:0, revenue:0, totalExpenses:0, net:0 };
+  records.forEach(r => {
+    t.maintenance += numVal(r.maintenance?.amount);
+    t.programming += numVal(r.programming?.amount);
+    t.goods       += numVal(r.goods?.amount);
+    t.income      += numVal(r.income?.amount);
+    t.expenses    += numVal(r.expenses?.amount);
+    const ra = numVal(r.rounds?.amount);
+    t.rounds += ra;
+    if(r.rounds?.type === 'expense') t.roundsExpense += ra;
+    else t.roundsIncome += ra;
+  });
+  t.revenue = t.income + t.programming + t.maintenance + t.roundsIncome;
+  t.totalExpenses = t.goods + t.expenses + t.roundsExpense;
+  t.net = t.revenue - t.totalExpenses;
+  return t;
+}
+
+/* ============================================================
+   رأس التاريخ
+============================================================ */
+function renderDateHeader(){
+  const box = $('#dateHeaderBox');
+  if(!box) return;
+  const today = new Date();
+  const gregToday = formatGregorian(today.toISOString().slice(0,10));
+  const hijriToday = formatHijri(today);
+
+  const from = $('#filterFrom').value;
+  const to = $('#filterTo').value;
+  let rangeLabel = '';
+  if(from && to) rangeLabel = `من ${formatGregorianShort(from)} إلى ${formatGregorianShort(to)}`;
+  else if(from) rangeLabel = `من ${formatGregorianShort(from)}`;
+  else if(to) rangeLabel = `حتى ${formatGregorianShort(to)}`;
+
+  box.innerHTML = `
+    <span class="date-item"><i class="bi bi-calendar3"></i> ${escapeHTML(gregToday)}</span>
+    <span class="date-item"><i class="bi bi-moon-stars"></i> ${escapeHTML(hijriToday)} هـ</span>
+    ${rangeLabel ? `<span class="date-item" style="background:rgba(255,255,255,.25)"><i class="bi bi-filter"></i> ${escapeHTML(rangeLabel)}</span>` : ''}
+  `;
+}
+
+/* ============================================================
+   بناء أقسام الفورم
+============================================================ */
+function buildFormSections(){
+  $('#formSections').innerHTML = SECTIONS.map(s => {
+    const typeField = s.hasType ? `
+      <div class="col-md-2">
+        <label class="form-label" for="form-${s.key}-type">النوع</label>
+        <select class="form-select" id="form-${s.key}-type">
+          <option value="income">إيراد</option>
+          <option value="expense">مصروف</option>
+        </select>
+      </div>` : '';
+    const amountCol = s.hasType ? 'col-md-2' : 'col-md-3';
+    const detailsCol = s.hasType ? 'col-md-8' : 'col-md-9';
+    return `
+      <div class="mb-3 p-3 rounded" style="background:${s.bg}20;border-right:3px solid ${s.color}">
+        <h6 class="fw-bold pb-2 mb-3" style="color:${s.color}">${s.icon} ${s.label}</h6>
+        <div class="row g-2">
+          <div class="${amountCol}">
+            <label class="form-label" for="form-${s.key}-amount">القيمة</label>
+            <input type="number" class="form-control" id="form-${s.key}-amount" min="0" step="any" placeholder="0" inputmode="decimal">
+          </div>
+          ${typeField}
+          <div class="${detailsCol}">
+            <label class="form-label" for="form-${s.key}-details">التفاصيل</label>
+            <input type="text" class="form-control" id="form-${s.key}-details" placeholder="تفاصيل ${s.label}...">
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+/* ============================================================
+   مودال الإضافة/التعديل
+============================================================ */
+function suggestRecordNumber(){
+  const t = todayISO().replace(/-/g,'');
+  const c = state.records.filter(r => r.date === todayISO()).length + 1;
+  return 'REC-' + t + '-' + String(c).padStart(3,'0');
+}
+
+function openRecordModal(mode, id){
+  const form = $('#recordForm');
+  form.reset();
+  $('#formAlert').classList.add('d-none');
+  $('#formAlert').textContent = '';
+  $('#err-formDate').textContent = '';
+
+  if(mode === 'edit' && id){
+    const rec = state.records.find(r => r.id === id);
+    if(!rec){ showToast('السجل غير موجود', 'error'); return; }
+    state.editingId = id;
+    $('#recordModalTitle').innerHTML = '<i class="bi bi-pencil"></i> تعديل السجل';
+    $('#btnSaveRecord').innerHTML = '<i class="bi bi-check2-circle"></i> حفظ التعديلات';
+    $('#formDate').value = rec.date || '';
+    $('#formRecordNumber').value = rec.recordNumber || '';
+    $('#formEmployee').value = rec.employee || '';
+    $('#formNotes').value = rec.notes || '';
+    SECTIONS.forEach(s => {
+      const sec = rec[s.key] || {};
+      const a = document.getElementById(`form-${s.key}-amount`);
+      const d = document.getElementById(`form-${s.key}-details`);
+      if(a) a.value = sec.amount ? sec.amount : '';
+      if(d) d.value = sec.details || '';
+      if(s.hasType){
+        const tp = document.getElementById(`form-${s.key}-type`);
+        if(tp) tp.value = sec.type || 'income';
+      }
+    });
+  } else {
+    state.editingId = null;
+    $('#recordModalTitle').innerHTML = '<i class="bi bi-plus-circle"></i> إضافة سجل يومي';
+    $('#btnSaveRecord').innerHTML = '<i class="bi bi-check2-circle"></i> حفظ السجل';
+    $('#formDate').value = todayISO();
+    $('#formRecordNumber').value = suggestRecordNumber();
+  }
+  getModal('recordModal').show();
+}
+
+function validateForm(){
+  const errors = [];
+  if(!$('#formDate').value){
+    $('#err-formDate').textContent = 'التاريخ مطلوب';
+    errors.push('التاريخ مطلوب');
+  } else {
+    $('#err-formDate').textContent = '';
+  }
+  SECTIONS.forEach(s => {
+    const a = document.getElementById(`form-${s.key}-amount`);
+    if(!a) return;
+    const v = a.value;
+    if(v !== '' && (isNaN(parseFloat(v)) || parseFloat(v) < 0)) errors.push(`قيمة ${s.label} غير صحيحة`);
+  });
+  const anyAmount = SECTIONS.some(s => numVal(document.getElementById(`form-${s.key}-amount`)?.value) > 0);
+  const anyDetails = SECTIONS.some(s => document.getElementById(`form-${s.key}-details`)?.value.trim() !== '');
+  const hasNotes = $('#formNotes').value.trim() !== '';
+  const hasEmployee = $('#formEmployee').value.trim() !== '';
+  if(!anyAmount && !anyDetails && !hasNotes && !hasEmployee) errors.push('لا يمكن حفظ سجل فارغ تمامًا');
+
+  if(errors.length){
+    const al = $('#formAlert');
+    al.classList.remove('d-none');
+    al.className = 'alert alert-danger';
+    al.innerHTML = '<i class="bi bi-exclamation-triangle"></i> ' + errors.join(' • ');
+    return false;
+  }
+  return true;
+}
+
+function collectFormData(){
+  const data = {
+    date: $('#formDate').value,
+    recordNumber: $('#formRecordNumber').value.trim(),
+    employee: $('#formEmployee').value.trim(),
+    notes: $('#formNotes').value.trim()
+  };
+  SECTIONS.forEach(s => {
+    const a = document.getElementById(`form-${s.key}-amount`);
+    const d = document.getElementById(`form-${s.key}-details`);
+    const obj = { amount: numVal(a ? a.value : 0), details: d ? d.value.trim() : '' };
+    if(s.hasType){
+      const tp = document.getElementById(`form-${s.key}-type`);
+      obj.type = tp && tp.value === 'expense' ? 'expense' : 'income';
+    }
+    data[s.key] = obj;
+  });
+  return data;
+}
+
+async function saveRecord(e){
+  if(e) e.preventDefault();
+  if(!validateForm()) return;
+
+  const data = collectFormData();
+
+  if(state.editingId){
+    const idx = state.records.findIndex(r => r.id === state.editingId);
+    if(idx !== -1){
+      state.records[idx] = normalizeRecord({ ...data, id: state.editingId });
+      showToast('تم تحديث السجل بنجاح', 'success');
+    }
+    state.editingId = null;
+  } else {
+    state.records.push(normalizeRecord({ ...data, id: generateId() }));
+    showToast('تم حفظ السجل بنجاح', 'success');
+  }
+
+  await persistRecords();
+  getModal('recordModal').hide();
+  refreshAll();
+}
+
+/* ============================================================
+   الحذف
+============================================================ */
+function askDeleteRecord(id){
+  const rec = state.records.find(r => r.id === id);
+  if(!rec) return;
+  state.deletingId = id;
+  $('#confirmModalBody').innerHTML = `
+    <p class="mb-2">هل أنت متأكد من حذف السجل التالي؟</p>
+    <div class="bg-light p-2 rounded small mb-2">
+      <div><strong>التاريخ:</strong> ${escapeHTML(formatGregorianShort(rec.date))}</div>
+      ${rec.recordNumber ? `<div><strong>رقم السجل:</strong> ${escapeHTML(rec.recordNumber)}</div>` : ''}
+      ${rec.employee ? `<div><strong>الموظف:</strong> ${escapeHTML(rec.employee)}</div>` : ''}
+    </div>
+    <p class="text-danger small mb-0">لا يمكن التراجع عن هذه العملية.</p>
+  `;
+  getModal('confirmModal').show();
+}
+
+async function deleteRecord(){
+  if(!state.deletingId) return;
+  state.records = state.records.filter(r => r.id !== state.deletingId);
+  state.deletingId = null;
+  await persistRecords();
+  getModal('confirmModal').hide();
+  showToast('تم حذف السجل', 'success');
+  refreshAll();
+}
+
+/* ============================================================
+   عرض التفاصيل
+============================================================ */
+function showRecordDetails(id){
+  const rec = state.records.find(r => r.id === id);
+  if(!rec) return;
+  state.viewingId = id;
+  const t = calculateTotals([rec]);
+
+  let html = `
+    <div class="mb-3">
+      <h6 class="text-primary fw-bold pb-2 mb-3 border-bottom"><i class="bi bi-info-circle"></i> بيانات عامة</h6>
+      <div class="row g-2">
+        <div class="col-md-4"><div class="bg-light p-2 rounded"><small class="text-muted d-block">ميلادي</small><strong>${escapeHTML(formatGregorian(rec.date))}</strong></div></div>
+        <div class="col-md-4"><div class="bg-light p-2 rounded"><small class="text-muted d-block">هجري</small><strong>${escapeHTML(formatHijri(rec.date))} هـ</strong></div></div>
+        <div class="col-md-4"><div class="bg-light p-2 rounded"><small class="text-muted d-block">رقم السجل</small><strong>${escapeHTML(rec.recordNumber || '—')}</strong></div></div>
+        <div class="col-md-4"><div class="bg-light p-2 rounded"><small class="text-muted d-block">الموظف</small><strong>${escapeHTML(rec.employee || '—')}</strong></div></div>
+      </div>
+    </div>
+    <div class="mb-3">
+      <h6 class="text-primary fw-bold pb-2 mb-3 border-bottom"><i class="bi bi-list-check"></i> العمليات</h6>
+      <div class="row g-2">`;
+
+  SECTIONS.forEach(s => {
+    const sec = rec[s.key] || {};
+    const amt = numVal(sec.amount);
+    const typeBadge = s.hasType ? `<span class="badge ${sec.type === 'expense' ? 'bg-danger' : 'bg-success'} ms-1">${sec.type === 'expense' ? 'مصروف' : 'إيراد'}</span>` : '';
+    html += `<div class="col-md-6"><div class="border rounded p-2 h-100" style="border-right:3px solid ${s.color}!important">
+      <div class="d-flex justify-content-between align-items-center mb-1">
+        <strong style="color:${s.color}">${s.icon} ${s.label} ${typeBadge}</strong>
+        <span class="fw-bold">${formatMoney(amt)}</span>
+      </div>
+      <div class="text-muted small">${escapeHTML(sec.details || 'لا توجد تفاصيل')}</div>
+    </div></div>`;
+  });
+  html += `</div></div>`;
+
+  if(rec.notes){
+    html += `<div class="mb-3"><h6 class="text-primary fw-bold pb-2 mb-3 border-bottom"><i class="bi bi-journal-text"></i> ملاحظات</h6>
+      <div class="alert alert-warning mb-0" style="white-space:pre-wrap">${escapeHTML(rec.notes)}</div></div>`;
+  }
+
+  html += `<div class="mb-0"><h6 class="text-primary fw-bold pb-2 mb-3 border-bottom"><i class="bi bi-calculator"></i> الإجماليات</h6>
+    <div class="row g-2">
+      <div class="col-md-4"><div class="bg-success text-white p-2 rounded text-center"><small class="d-block opacity-75">الإيرادات</small><strong>${formatMoney(t.revenue)}</strong></div></div>
+      <div class="col-md-4"><div class="bg-danger text-white p-2 rounded text-center"><small class="d-block opacity-75">المصروفات</small><strong>${formatMoney(t.totalExpenses)}</strong></div></div>
+      <div class="col-md-4"><div class="${t.net >= 0 ? 'bg-primary' : 'bg-danger'} text-white p-2 rounded text-center"><small class="d-block opacity-75">الصافي</small><strong>${formatMoney(t.net)}</strong></div></div>
+    </div></div>`;
+
+  $('#viewModalBody').innerHTML = html;
+  getModal('viewModal').show();
+}
+
+/* ============================================================
+   لوحة الإحصائيات
+============================================================ */
+function renderDashboard(){
+  const t = calculateTotals(state.filtered);
+
+  $('#dashboardCards').innerHTML = SECTIONS.map(s => `
+    <div class="col-6 col-md-4 col-lg-2">
+      <div class="stat-card" style="--accent:${s.color};--accent-bg:${s.bg}">
+        <div class="d-flex align-items-center gap-2 mb-2">
+          <div class="stat-icon">${s.icon}</div>
+          <div class="stat-label">إجمالي ${s.label}</div>
+        </div>
+        <div class="stat-value">${formatNumber(t[s.key])}</div>
+        <div class="stat-sub">ر.ي</div>
+      </div>
+    </div>
+  `).join('');
+
+  const netCls = t.net < 0 ? ' negative' : '';
+  $('#totalsCards').innerHTML = `
+    <div class="col-md-4"><div class="totals-card revenue">
+      <div class="t-label"><i class="bi bi-cash-coin"></i> إجمالي الإيرادات</div>
+      <div class="t-value">${formatNumber(t.revenue)} ر.ي</div>
+      <div class="t-sub">قبض + برمجة + صيانة + جولات (إيراد)</div>
+    </div></div>
+    <div class="col-md-4"><div class="totals-card expenses">
+      <div class="t-label"><i class="bi bi-wallet2"></i> إجمالي المصروفات</div>
+      <div class="t-value">${formatNumber(t.totalExpenses)} ر.ي</div>
+      <div class="t-sub">بضاعة + صرف + جولات (مصروف)</div>
+    </div></div>
+    <div class="col-md-4"><div class="totals-card net${netCls}">
+      <div class="t-label"><i class="bi bi-graph-up-arrow"></i> صافي اليوم</div>
+      <div class="t-value">${formatNumber(t.net)} ر.ي</div>
+      <div class="t-sub">الإيرادات − المصروفات</div>
+    </div></div>
+  `;
+}
+
+/* ============================================================
+   ملخص السجل اليومي
+============================================================ */
+function renderSummary(){
+  const d = $('#summaryDate').value || todayISO();
+  const dayRecords = state.records.filter(r => r.date === d);
+  const t = calculateTotals(dayRecords);
+
+  const items = [
+    { label:'عدد السجلات', value: dayRecords.length },
+    { label:'إجمالي الصيانة', value: formatNumber(t.maintenance) },
+    { label:'إجمالي البرمجة', value: formatNumber(t.programming) },
+    { label:'إجمالي البضاعة', value: formatNumber(t.goods) },
+    { label:'إجمالي القبض', value: formatNumber(t.income) },
+    { label:'إجمالي الصرف', value: formatNumber(t.expenses) },
+    { label:'إجمالي الجولات', value: formatNumber(t.rounds) }
+  ];
+  const netCls = t.net < 0 ? ' negative' : '';
+
+  $('#summaryGrid').innerHTML = items.map(i => `
+    <div class="summary-item">
+      <span class="s-label">${i.label}</span>
+      <span class="s-value">${i.value}</span>
+    </div>
+  `).join('') + `<div class="summary-item net${netCls}">
+    <span class="s-label">صافي الحركة</span>
+    <span class="s-value">${formatNumber(t.net)} ر.ي</span>
+  </div>`;
+}
+
+/* ============================================================
+   رسم الجدول
+============================================================ */
+function renderRecords(){
+  renderDateHeader();
+  const tbody = $('#recordsTableBody');
+  const total = state.filtered.length;
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  if(state.currentPage > totalPages) state.currentPage = totalPages;
+  const start = (state.currentPage - 1) * PAGE_SIZE;
+  const pageRecords = state.filtered.slice(start, start + PAGE_SIZE);
+
+  $('#recordsCountBadge').textContent = total;
+
+  if(total === 0){
+    tbody.innerHTML = `<tr><td colspan="17"><div class="empty-state">
+      <i class="bi bi-inbox icon"></i>
+      <h5>لا توجد سجلات</h5>
+      <p class="mb-3">ابدأ بإضافة سجل يومي جديد لمحل ${SHOP_NAME}</p>
+      <button type="button" class="btn btn-primary btn-sm" onclick="document.getElementById('btnAddTop').click()">
+        <i class="bi bi-plus-lg"></i> إضافة سجل يومي</button>
+    </div></td></tr>`;
+    $('#paginationWrap').style.display = 'none';
+    return;
+  }
+  $('#paginationWrap').style.display = 'flex';
+
+  tbody.innerHTML = pageRecords.map(rec => {
+    let cells = '';
+    SECTIONS.forEach(s => {
+      const sec = rec[s.key] || {};
+      const amount = numVal(sec.amount);
+      const zeroCls = amount === 0 ? ' zero' : '';
+      cells += `<td><span class="money-amount${zeroCls}">${formatNumber(amount)}</span>`;
+      if(s.hasType && amount > 0){
+        cells += `<span class="rounds-badge ${sec.type === 'expense' ? 'expense' : 'income'}">${sec.type === 'expense' ? 'مصروف' : 'إيراد'}</span>`;
+      }
+      cells += `</td><td><span class="money-details" title="${escapeHTML(sec.details || '')}">${escapeHTML(sec.details || '—')}</span></td>`;
+    });
+
+    return `<tr data-id="${rec.id}">
+      <td class="cell-date">${escapeHTML(formatGregorianShort(rec.date))}</td>
+      <td class="cell-recno">${escapeHTML(rec.recordNumber || '—')}</td>
+      <td class="cell-employee">${escapeHTML(rec.employee || '—')}</td>
+      ${cells}
+      <td class="cell-notes" title="${escapeHTML(rec.notes || '')}">${escapeHTML(rec.notes || '—')}</td>
+      <td><div class="action-buttons">
+        <button type="button" class="btn-action" data-action="view" data-id="${rec.id}" title="عرض"><i class="bi bi-eye"></i></button>
+        <button type="button" class="btn-action" data-action="edit" data-id="${rec.id}" title="تعديل"><i class="bi bi-pencil"></i></button>
+        <button type="button" class="btn-action" data-action="print" data-id="${rec.id}" title="طباعة"><i class="bi bi-printer"></i></button>
+        <button type="button" class="btn-action danger" data-action="delete" data-id="${rec.id}" title="حذف"><i class="bi bi-trash3"></i></button>
+      </div></td>
+    </tr>`;
+  }).join('');
+
+  renderPagination();
+}
+
+function renderPagination(){
+  const total = state.filtered.length;
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const start = (state.currentPage - 1) * PAGE_SIZE + 1;
+  const end = Math.min(state.currentPage * PAGE_SIZE, total);
+
+  $('#paginationInfo').innerHTML = `<i class="bi bi-info-circle"></i> عرض ${start} - ${end} من إجمالي <strong>${total}</strong> سجل`;
+
+  let html = `<button class="btn btn-sm btn-outline-secondary" data-page="prev" ${state.currentPage === 1 ? 'disabled' : ''}><i class="bi bi-chevron-right"></i></button>`;
+  const pages = [];
+  let sP = Math.max(1, state.currentPage - 2);
+  let eP = Math.min(totalPages, sP + 4);
+  if(eP - sP < 4) sP = Math.max(1, eP - 4);
+  if(sP > 1){ pages.push(1); if(sP > 2) pages.push('...'); }
+  for(let i = sP; i <= eP; i++) pages.push(i);
+  if(eP < totalPages){ if(eP < totalPages - 1) pages.push('...'); pages.push(totalPages); }
+
+  pages.forEach(p => {
+    if(p === '...') html += `<span class="btn btn-sm btn-outline-secondary disabled">…</span>`;
+    else html += `<button class="btn btn-sm ${p === state.currentPage ? 'btn-primary' : 'btn-outline-secondary'}" data-page="${p}">${p}</button>`;
+  });
+  html += `<button class="btn btn-sm btn-outline-secondary" data-page="next" ${state.currentPage === totalPages ? 'disabled' : ''}><i class="bi bi-chevron-left"></i></button>`;
+  $('#paginationNav').innerHTML = html;
+}
+
+function changePage(page){
+  const totalPages = Math.max(1, Math.ceil(state.filtered.length / PAGE_SIZE));
+  if(page === 'prev') state.currentPage = Math.max(1, state.currentPage - 1);
+  else if(page === 'next') state.currentPage = Math.min(totalPages, state.currentPage + 1);
+  else state.currentPage = parseInt(page, 10);
+  renderRecords();
+  document.getElementById('recordsTable').scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
+/* ============================================================
+   التصفية
+============================================================ */
+function refreshFiltered(){
+  const q = $('#filterSearch').value.trim().toLowerCase();
+  const from = $('#filterFrom').value;
+  const to = $('#filterTo').value;
+  const type = $('#filterType').value;
+  const emp = $('#filterEmployee').value;
+
+  let list = state.records.slice();
+  if(from) list = list.filter(r => r.date >= from);
+  if(to) list = list.filter(r => r.date <= to);
+  if(emp !== 'all') list = list.filter(r => (r.employee || '') === emp);
+  if(type !== 'all') list = list.filter(r => numVal(r[type]?.amount) > 0);
+  if(q){
+    list = list.filter(r => {
+      const hay = [r.notes || '', r.recordNumber || '', r.employee || '',
+        ...SECTIONS.map(s => r[s.key]?.details || '')].join(' ').toLowerCase();
+      return hay.includes(q);
+    });
+  }
+  list.sort((a, b) => {
+    const d = (a.date || '').localeCompare(b.date || '');
+    return state.sortDesc ? -d : d;
+  });
+  state.filtered = list;
+}
+function applyFilters(){ state.currentPage = 1; refreshFiltered(); renderRecords(); renderDashboard(); }
+function resetFilters(){
+  $('#filterSearch').value = '';
+  $('#filterFrom').value = '';
+  $('#filterTo').value = '';
+  $('#filterType').value = 'all';
+  $('#filterEmployee').value = 'all';
+  state.currentPage = 1;
+  refreshFiltered(); renderRecords(); renderDashboard();
+  showToast('تم إعادة تعيين التصفية', 'info');
+}
+function refreshEmployeeFilter(){
+  const set = new Set();
+  state.records.forEach(r => { if(r.employee) set.add(r.employee); });
+  const current = $('#filterEmployee').value;
+  $('#filterEmployee').innerHTML = ['<option value="all">جميع الموظفين</option>']
+    .concat([...set].sort().map(e => `<option value="${escapeHTML(e)}">${escapeHTML(e)}</option>`)).join('');
+  if([...set].includes(current)) $('#filterEmployee').value = current;
+}
+
+/* ============================================================
+   تحديث شامل
+============================================================ */
+function refreshAll(){
+  refreshFiltered();
+  refreshEmployeeFilter();
+  renderRecords();
+  renderDashboard();
+  renderSummary();
+}
+
+/* ============================================================
+   الطباعة
+============================================================ */
+function printList(){
+  const records = state.filtered.length ? state.filtered : state.records;
+  if(records.length === 0){ showToast('لا توجد سجلات للطباعة', 'error'); return; }
+  const t = calculateTotals(records);
+
+  const rows = records.map(rec => {
+    let cells = '';
+    SECTIONS.forEach(s => {
+      const sec = rec[s.key] || {};
+      const amount = numVal(sec.amount);
+      const tl = s.hasType ? `<br><small>(${sec.type === 'expense' ? 'مصروف' : 'إيراد'})</small>` : '';
+      const dt = sec.details ? `<br><small>${escapeHTML(sec.details)}</small>` : '';
+      cells += `<td>${formatNumber(amount)}${tl}</td><td>${dt || '—'}</td>`;
+    });
+    return `<tr>
+      <td>${escapeHTML(formatGregorianShort(rec.date))}</td>
+      <td>${escapeHTML(rec.recordNumber || '—')}</td>
+      <td>${escapeHTML(rec.employee || '—')}</td>
+      ${cells}
+      <td>${escapeHTML(rec.notes || '—')}</td>
+    </tr>`;
+  }).join('');
+
+  const today = new Date();
+  const html = `
+    <div class="print-header"><h1>${SHOP_NAME}</h1><div class="sub">السجل اليومي للعمليات</div></div>
+    <div class="print-date-info">
+      <span><strong>الميلادي:</strong> ${escapeHTML(formatGregorian(today.toISOString().slice(0,10)))}</span>
+      <span><strong>الهجري:</strong> ${escapeHTML(formatHijri(today))} هـ</span>
+      <span><strong>عدد السجلات:</strong> ${records.length}</span>
+    </div>
+    <table class="print-table"><thead>
+      <tr>
+        <th rowspan="2">التاريخ</th><th rowspan="2">رقم السجل</th><th rowspan="2">الموظف</th>
+        ${SECTIONS.map(s => `<th colspan="2">${s.label}</th>`).join('')}
+        <th rowspan="2">ملاحظات</th>
+      </tr>
+      <tr>${SECTIONS.map(() => `<th class="sub-th">قيمة</th><th class="sub-th">تفاصيل</th>`).join('')}</tr>
+    </thead><tbody>${rows}</tbody></table>
+    <div class="print-totals">
+      <div class="print-total-item"><span>إجمالي الصيانة</span><strong>${formatNumber(t.maintenance)}</strong></div>
+      <div class="print-total-item"><span>إجمالي البرمجة</span><strong>${formatNumber(t.programming)}</strong></div>
+      <div class="print-total-item"><span>إجمالي البضاعة</span><strong>${formatNumber(t.goods)}</strong></div>
+      <div class="print-total-item"><span>إجمالي القبض</span><strong>${formatNumber(t.income)}</strong></div>
+      <div class="print-total-item"><span>إجمالي الصرف</span><strong>${formatNumber(t.expenses)}</strong></div>
+      <div class="print-total-item"><span>إجمالي الجولات</span><strong>${formatNumber(t.rounds)}</strong></div>
+      <div class="print-total-item" style="grid-column:span 3;background:#dcfce7"><span>إجمالي الإيرادات</span><strong>${formatNumber(t.revenue)}</strong></div>
+      <div class="print-total-item" style="grid-column:span 3;background:#fee2e2"><span>إجمالي المصروفات</span><strong>${formatNumber(t.totalExpenses)}</strong></div>
+      <div class="print-total-item" style="grid-column:span 3;background:#dbeafe"><span><strong>صافي الحركة</strong></span><strong>${formatNumber(t.net)}</strong></div>
+    </div>
+    <div class="print-footer">${SHOP_NAME} — تقرير السجل اليومي</div>`;
+  $('#printArea').innerHTML = html;
+  setTimeout(() => window.print(), 100);
+}
+
+function printSingleRecord(id){
+  const rec = state.records.find(r => r.id === id);
+  if(!rec){ showToast('السجل غير موجود', 'error'); return; }
+  const t = calculateTotals([rec]);
+
+  const rows = SECTIONS.map(s => {
+    const sec = rec[s.key] || {};
+    const amt = numVal(sec.amount);
+    const tl = s.hasType ? ` (${sec.type === 'expense' ? 'مصروف' : 'إيراد'})` : '';
+    return `<div class="print-record-row">
+      <span><strong>${s.label}${tl}:</strong> ${escapeHTML(sec.details || '—')}</span>
+      <span>${formatNumber(amt)} ر.ي</span>
+    </div>`;
+  }).join('');
+
+  const html = `
+    <div class="print-header"><h1>${SHOP_NAME}</h1><div class="sub">تفاصيل سجل</div></div>
+    <div class="print-date-info">
+      <span><strong>الميلادي:</strong> ${escapeHTML(formatGregorian(rec.date))}</span>
+      <span><strong>الهجري:</strong> ${escapeHTML(formatHijri(rec.date))} هـ</span>
+      <span><strong>رقم السجل:</strong> ${escapeHTML(rec.recordNumber || '—')}</span>
+      <span><strong>الموظف:</strong> ${escapeHTML(rec.employee || '—')}</span>
+    </div>
+    <div class="print-record-block"><h3>تفاصيل العمليات</h3>${rows}</div>
+    <div class="print-record-block"><h3>الإجماليات</h3>
+      <div class="print-record-row"><span>الإيرادات</span><span>${formatNumber(t.revenue)} ر.ي</span></div>
+      <div class="print-record-row"><span>المصروفات</span><span>${formatNumber(t.totalExpenses)} ر.ي</span></div>
+      <div class="print-record-row"><span><strong>الصافي</strong></span><span><strong>${formatNumber(t.net)} ر.ي</strong></span></div>
+    </div>
+    ${rec.notes ? `<div class="print-record-block"><h3>ملاحظات</h3><div style="white-space:pre-wrap">${escapeHTML(rec.notes)}</div></div>` : ''}
+    <div class="print-footer">${SHOP_NAME} — ${escapeHTML(formatGregorianShort(todayISO()))}</div>`;
+  $('#printArea').innerHTML = html;
+  setTimeout(() => window.print(), 100);
+}
+
+/* ============================================================
+   تصدير Excel (CSV)
+============================================================ */
+function exportToExcel(){
+  const records = state.filtered.length ? state.filtered : state.records;
+  if(records.length === 0){ showToast('لا توجد بيانات للتصدير', 'error'); return; }
+
+  // نصدّر ملفين بصيغة CSV جاهزة لـ Excel
+  const csv = '\ufeff' + generateCSV(records);
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `wijdan-telecom-${todayISO()}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 500);
+  showToast('تم تصدير البيانات بنجاح', 'success');
+}
+
+/* ============================================================
+   الأحداث
+============================================================ */
+function bindEvents(){
+  $('#btnAddTop').addEventListener('click', () => openRecordModal('add'));
+  $('#btnPrintTop').addEventListener('click', printList);
+  $('#recordForm').addEventListener('submit', saveRecord);
+
+  // ============ أحداث الملف ============
+  $('#btnConnectFile').addEventListener('click', connectFile);
+  $('#btnSaveToFile').addEventListener('click', () => saveToFile(false));
+  $('#btnDisconnectFile').addEventListener('click', disconnectFile);
+  $('#legacyFileInput').addEventListener('change', handleLegacyFileInput);
+  $('#autoSaveToggle').addEventListener('change', (e) => {
+    fileState.autoSave = e.target.checked;
+    showToast(fileState.autoSave ? 'الحفظ التلقائي مفعّل' : 'الحفظ التلقائي متوقف', 'info');
+  });
+
+  $('#recordsTableBody').addEventListener('click', e => {
+    const btn = e.target.closest('[data-action]');
+    if(!btn) return;
+    const { action, id } = btn.dataset;
+    if(action === 'view') showRecordDetails(id);
+    else if(action === 'edit') openRecordModal('edit', id);
+    else if(action === 'print') printSingleRecord(id);
+    else if(action === 'delete') askDeleteRecord(id);
+  });
+
+  $('#paginationNav').addEventListener('click', e => {
+    const btn = e.target.closest('[data-page]');
+    if(!btn || btn.disabled) return;
+    changePage(btn.dataset.page);
+  });
+
+  $('#btnApplyFilter').addEventListener('click', applyFilters);
+  $('#btnResetFilter').addEventListener('click', resetFilters);
+  $('#btnPrintList').addEventListener('click', printList);
+  $('#btnExportExcel').addEventListener('click', exportToExcel);
+
+  let sTimer;
+  $('#filterSearch').addEventListener('input', () => {
+    clearTimeout(sTimer);
+    sTimer = setTimeout(applyFilters, 300);
+  });
+  ['filterFrom','filterTo','filterType','filterEmployee'].forEach(id => {
+    document.getElementById(id).addEventListener('change', applyFilters);
+  });
+
+  $('#summaryDate').addEventListener('change', renderSummary);
+  $('#btnSummaryToday').addEventListener('click', () => {
+    $('#summaryDate').value = todayISO();
+    renderSummary();
+  });
+
+  $('#btnSortDate').addEventListener('click', () => {
+    state.sortDesc = !state.sortDesc;
+    $('#sortLabel').textContent = state.sortDesc ? 'الأحدث أولاً' : 'الأقدم أولاً';
+    refreshFiltered();
+    renderRecords();
+  });
+
+  $('#btnToggleFilter').addEventListener('click', () => {
+    const body = $('#filterBody');
+    const btn = $('#btnToggleFilter');
+    const hidden = body.style.display === 'none';
+    body.style.display = hidden ? '' : 'none';
+    btn.innerHTML = hidden ? '<i class="bi bi-chevron-up"></i> إخفاء' : '<i class="bi bi-chevron-down"></i> إظهار';
+  });
+
+  $('#btnConfirmDelete').addEventListener('click', deleteRecord);
+
+  $('#btnPrintFromView').addEventListener('click', () => {
+    if(state.viewingId){
+      getModal('viewModal').hide();
+      setTimeout(() => printSingleRecord(state.viewingId), 300);
+    }
+  });
+}
+
+/* ============================================================
+   التهيئة
+============================================================ */
+function init(){
+  $('#footerYear').textContent = new Date().getFullYear();
+  buildFormSections();
+  state.records = loadRecordsFromLocal();
+  $('#summaryDate').value = todayISO();
+  bindEvents();
+  refreshAll();
+
+  // ملاحظة: الملف يحتاج تفاعل المستخدم لاختياره (قيد أمني في المتصفح)
+  // لكن يمكن استخدام IndexedDB لاسترجاع آخر مقبض ملف (FileSystemHandle) — نضيفه هنا
+  restoreFileHandleIfPossible();
+}
+
+/* ============================================================
+   استرجاع مقبض الملف من الجلسة السابقة (IndexedDB)
+============================================================ */
+const IDB_NAME = 'wijdan_file_handles';
+const IDB_STORE = 'handles';
+const IDB_KEY = 'last_file';
+
+function openIDB(){
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open(IDB_NAME, 1);
+    req.onupgradeneeded = () => {
+      const db = req.result;
+      if(!db.objectStoreNames.contains(IDB_STORE)) db.createObjectStore(IDB_STORE);
+    };
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+async function saveFileHandle(handle){
+  try{
+    const db = await openIDB();
+    const tx = db.transaction(IDB_STORE, 'readwrite');
+    tx.objectStore(IDB_STORE).put(handle, IDB_KEY);
+  }catch(e){ console.warn('IDB save failed', e); }
+}
+async function loadFileHandle(){
+  try{
+    const db = await openIDB();
+    return new Promise((resolve) => {
+      const tx = db.transaction(IDB_STORE, 'readonly');
+      const req = tx.objectStore(IDB_STORE).get(IDB_KEY);
+      req.onsuccess = () => resolve(req.result || null);
+      req.onerror = () => resolve(null);
+    });
+  }catch(e){ return null; }
+}
+
+async function restoreFileHandleIfPossible(){
+  if(!window.showOpenFilePicker) return;
+  try{
+    const handle = await loadFileHandle();
+    if(!handle) return;
+    fileState.handle = handle;
+
+    // نتحقق من الصلاحية (بدون طلب — إن لم تكن ممنوحة، سنطلبها عند أول حفظ)
+    const perm = await handle.queryPermission({ mode: 'readwrite' });
+    if(perm === 'granted'){
+      fileState.connected = true;
+      updateFileUI('connected', `مرتبط: ${handle.name}`);
+      // قراءة الملف لتحميل البيانات منه
+      const f = await handle.getFile();
+      const text = await readFileTextSafe(f);
+      const records = parseCSV(text);
+      if(records.length > 0){
+        state.records = records;
+        saveRecordsToLocal();
+        refreshAll();
+      }
+      showToast('تم استرجاع الاتصال بملف: ' + handle.name, 'success');
+    } else {
+      // في انتظار تفاعل المستخدم لطلب الصلاحية
+      updateFileUI('disconnected', `ملف محفوظ: ${handle.name} — انقر "تغيير الملف" للاتصال`);
+    }
+  }catch(e){ console.warn('restore handle failed', e); }
+}
+
+// حفظ المقبض عند ربط ملف جديد
+const _origConnect = connectFile;
+connectFile = async function(){
+  await _origConnect();
+  if(fileState.handle){
+    await saveFileHandle(fileState.handle);
+  }
+};
+
+if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+else init();
+
+})();
+</script>
+</body>
+</html>
