@@ -850,7 +850,7 @@
                   </div>
                   <div class="col-12 col-md-4">
                     <label class="form-label" for="formRecordNumber">رقم السجل</label>
-                    <input type="text" class="form-control" id="formRecordNumber" placeholder="REC-0001" />
+                    <input type="text" class="form-control" id="formRecordNumber" placeholder="WT-0001" />
                   </div>
                   <div class="col-12 col-md-4">
                     <label class="form-label" for="formEmployee">اسم الموظف</label>
@@ -1508,7 +1508,7 @@
         function suggestRecordNumber() {
           const t = todayISO().replace(/-/g, '');
           const c = state.records.filter((r) => r.date === todayISO()).length + 1;
-          return 'REC-' + t + '-' + String(c).padStart(3, '0');
+          return 'WT-' + t + '-' + String(c).padStart(3, '0');
         }
 
         function openRecordModal(mode, id) {
