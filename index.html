@@ -1,1 +1,952 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>سجل التحويلات اليومي</title>
 
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+<style>
+  :root{
+    --brand:#0f766e;
+    --footer-h:48px;
+  }
+  body{
+    background:#f2f5f8;
+    font-family:"Segoe UI", Tahoma, "Noto Naskh Arabic", sans-serif;
+    padding-bottom:var(--footer-h);
+    -webkit-print-color-adjust:exact; print-color-adjust:exact;
+  }
+
+  /* الهيدر */
+  .app-header{
+    background:linear-gradient(135deg,#0f766e 0%,#115e59 60%,#134e4a 100%);
+    color:#fff; padding:1.1rem 0; margin-bottom:1.25rem;
+    box-shadow:0 4px 20px rgba(15,118,110,.25);
+    position:sticky; top:0; z-index:1030;
+  }
+  .app-header h1{font-size:1.35rem; font-weight:700; margin:0;}
+  .app-header p{opacity:.85; font-size:.82rem; margin:.2rem 0 0;}
+
+  .card{
+    border:none; border-radius:14px;
+    box-shadow:0 2px 12px rgba(16,24,40,.07);
+    margin-bottom:1.25rem;
+  }
+  .card-header{
+    background:#fff; border-bottom:1px solid #eef1f4;
+    font-weight:700; border-radius:14px 14px 0 0 !important;
+    padding:.85rem 1rem;
+  }
+
+  /* جدول الملخص */
+  table.summary-table{margin-bottom:0; font-size:.88rem;}
+  table.summary-table thead th{
+    background:#f8fafc; color:#475569; font-size:.78rem; font-weight:700;
+    text-align:center; vertical-align:middle; white-space:nowrap;
+    border-bottom:2px solid #e2e8f0;
+  }
+  table.summary-table tbody td{
+    vertical-align:middle; text-align:center; font-variant-numeric:tabular-nums;
+    font-weight:600;
+  }
+  table.summary-table tbody td.cur-name{
+    text-align:right; font-weight:700; white-space:nowrap;
+  }
+  table.summary-table tbody td.cur-name .dot{
+    display:inline-block; width:10px; height:10px; border-radius:50%;
+    margin-inline-end:6px; vertical-align:middle;
+  }
+  .cur-YER .dot{background:#0f766e;}
+  .cur-SAR .dot{background:#16a34a;}
+  .cur-USD .dot{background:#2563eb;}
+
+  .val-pos{color:#16a34a;}
+  .val-send-cash{color:#075985;}
+  .val-send-credit{color:#b91c1c;}
+  .val-recv-paid{color:#16a34a;}
+  .val-recv-pending{color:#d97706;}
+
+  /* جدول العمليات */
+  table.ledger thead th{
+    background:#f8fafc; font-size:.8rem; color:#475569;
+    white-space:nowrap; border-bottom:2px solid #e2e8f0;
+  }
+  table.ledger td{font-size:.88rem; vertical-align:middle;}
+  table.ledger td.num{font-variant-numeric:tabular-nums; font-weight:600; white-space:nowrap;}
+
+  .badge-send{background:#e0f2fe; color:#075985;}
+  .badge-recv{background:#f3e8ff; color:#6b21a8;}
+  .badge-cash{background:#f1f5f9; color:#334155;}
+  .badge-credit{background:#fee2e2; color:#991b1b;}
+  .badge-settled{background:#dcfce7; color:#166534;}
+  .badge-paid{background:#dcfce7; color:#166534;}
+  .badge-pending{background:#fef3c7; color:#92400e;}
+  .badge-other{background:#e2e8f0; color:#475569;}
+
+  .btn-icon{padding:.15rem .45rem; font-size:.85rem; line-height:1.4;}
+  .form-label{font-size:.8rem; font-weight:600; color:#475569; margin-bottom:.2rem;}
+  .form-control, .form-select{font-size:.88rem;}
+  .section-title{font-size:1rem; font-weight:700; color:var(--brand); margin:0;}
+  .empty-state{padding:2.5rem 1rem; text-align:center; color:#94a3b8;}
+
+  .field-group-title{
+    font-size:.8rem; font-weight:800; color:var(--brand);
+    border-bottom:1px dashed #d1d5db; padding-bottom:.3rem;
+    margin-bottom:.6rem; letter-spacing:.3px;
+  }
+
+  /* الفوتر الثابت */
+  .app-footer{
+    position:fixed; bottom:0; inset-inline:0;
+    height:var(--footer-h);
+    background:#0f172a; color:#e2e8f0;
+    display:flex; align-items:center; justify-content:center;
+    font-size:.85rem; z-index:1040;
+    box-shadow:0 -2px 12px rgba(0,0,0,.15);
+  }
+  .app-footer .credit{display:inline-flex; align-items:center; gap:.5rem;}
+  .app-footer .credit i{color:#2dd4bf;}
+  .app-footer strong{
+    background:linear-gradient(135deg,#2dd4bf,#22d3ee);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    font-weight:800; letter-spacing:.3px;
+  }
+
+  /* المودال */
+  .modal-content{border:none; border-radius:16px; overflow:hidden;}
+  .modal-header{
+    background:linear-gradient(135deg,#0f766e,#115e59);
+    color:#fff; border-bottom:none; padding:.9rem 1.1rem;
+  }
+  .modal-header .btn-close{filter:invert(1) grayscale(1) brightness(2); opacity:.85;}
+  .modal-title{font-size:1.05rem; font-weight:700;}
+  .modal-body{padding:1.1rem 1.15rem; background:#fbfcfd;}
+  .modal-footer{border-top:1px solid #eef1f4; background:#fff;}
+
+  @media print{
+    .no-print, .app-footer, .modal, .modal-backdrop{display:none !important;}
+    body{background:#fff; padding-bottom:0;}
+    .app-header{position:static; box-shadow:none;}
+    .card{box-shadow:none; border:1px solid #d8dee5;}
+    table.ledger td, table.ledger th{font-size:.75rem;}
+    .btn{display:none !important;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ======= الهيدر ======= -->
+<header class="app-header no-print">
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+      <div>
+        <h1><i class="bi bi-cash-coin"></i> سجل التحويلات اليومي</h1>
+        <p>نقطة تحويل تابعة للصراف — توثيق عمليات الإرسال والاستلام</p>
+      </div>
+      <div class="d-flex gap-2 flex-wrap">
+        <button class="btn btn-success btn-sm fw-bold px-3"
+                data-bs-toggle="modal" data-bs-target="#entryModal" onclick="prepareAdd()">
+          <i class="bi bi-plus-lg"></i> إضافة عملية
+        </button>
+        <button class="btn btn-light btn-sm" onclick="window.print()">
+          <i class="bi bi-printer"></i> طباعة
+        </button>
+        <button class="btn btn-outline-light btn-sm" onclick="exportCSV()">
+          <i class="bi bi-filetype-csv"></i> تصدير
+        </button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="container pb-5">
+
+  <!-- ======= الفلاتر ======= -->
+  <div class="card no-print">
+    <div class="card-body py-3">
+      <div class="row g-2 align-items-end">
+        <div class="col-6 col-md-3">
+          <label class="form-label">التاريخ</label>
+          <div class="input-group input-group-sm">
+            <button class="btn btn-outline-secondary" onclick="shiftDay(-1)" title="السابق"><i class="bi bi-chevron-right"></i></button>
+            <input type="date" id="dateInput" class="form-control">
+            <button class="btn btn-outline-secondary" onclick="shiftDay(1)" title="التالي"><i class="bi bi-chevron-left"></i></button>
+          </div>
+        </div>
+        <div class="col-6 col-md-2">
+          <label class="form-label">بحث</label>
+          <input type="text" id="searchInput" class="form-control form-control-sm" placeholder="اسم / جوال / رقم حوالة">
+        </div>
+        <div class="col-6 col-md-2">
+          <label class="form-label">العملة</label>
+          <select id="filterCurrency" class="form-select form-select-sm">
+            <option value="">كل العملات</option>
+            <option value="YER">ريال يمني</option>
+            <option value="SAR">ريال سعودي</option>
+            <option value="USD">دولار أمريكي</option>
+          </select>
+        </div>
+        <div class="col-6 col-md-2">
+          <label class="form-label">النوع</label>
+          <select id="filterType" class="form-select form-select-sm">
+            <option value="">الكل</option>
+            <option value="send">إرسال حوالة</option>
+            <option value="receive">استلام حوالة</option>
+          </select>
+        </div>
+        <div class="col-6 col-md-2">
+          <label class="form-label">الحالة</label>
+          <select id="filterStatus" class="form-select form-select-sm">
+            <option value="">كل الحالات</option>
+            <optgroup label="إرسال">
+              <option value="cash">نقد</option>
+              <option value="credit">آجل</option>
+              <option value="credit_open">آجل غير مسدد</option>
+            </optgroup>
+            <optgroup label="استلام">
+              <option value="paid">تم الدفع</option>
+              <option value="pending">لا زالت عند الصراف</option>
+              <option value="other">أخرى</option>
+            </optgroup>
+          </select>
+        </div>
+        <div class="col-6 col-md-1">
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="chkAllDates">
+            <label class="form-check-label small" for="chkAllDates">الكل</label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======= جدول الملخص ======= -->
+  <div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <span><i class="bi bi-clipboard-data"></i> ملخص العمليات</span>
+      <small class="text-muted" id="summaryScope"></small>
+    </div>
+    <div class="table-responsive">
+      <table class="table summary-table mb-0">
+        <thead>
+          <tr>
+            <th rowspan="2">العملة</th>
+            <th colspan="3" style="background:#e0f2fe;color:#075985">إرسال حوالات</th>
+            <th colspan="3" style="background:#f3e8ff;color:#6b21a8">استلام حوالات</th>
+          </tr>
+          <tr>
+            <th>عدد</th>
+            <th>نقد</th>
+            <th>آجل</th>
+            <th>عدد</th>
+            <th>مدفوع</th>
+            <th>عند الصراف</th>
+          </tr>
+        </thead>
+        <tbody id="summaryBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ======= جدول العمليات ======= -->
+  <div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <span><i class="bi bi-list-ul"></i> العمليات المسجّلة</span>
+      <span class="badge bg-secondary" id="countBadge">0</span>
+    </div>
+    <div class="table-responsive">
+      <table class="table table-hover ledger mb-0">
+        <thead>
+          <tr>
+            <th style="width:40px">#</th>
+            <th>التاريخ</th>
+            <th>النوع</th>
+            <th>المرسل</th>
+            <th>المستلم</th>
+            <th>الغرض / رقم الحوالة</th>
+            <th class="text-end">المبلغ</th>
+            <th class="text-end">العمولة</th>
+            <th>الحالة</th>
+            <th>ملاحظات</th>
+            <th class="no-print" style="width:110px"></th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<!-- ======= الفوتر الثابت ======= -->
+<footer class="app-footer no-print">
+  <div class="credit">
+    <i class="bi bi-code-slash"></i>
+    <span>تصميم وتطوير</span>
+    <strong>محمد الشرفي</strong>
+  </div>
+</footer>
+
+<!-- ======= مودال الإضافة / التعديل ======= -->
+<div class="modal fade" id="entryModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalTitle">
+          <i class="bi bi-plus-circle"></i> إضافة عملية جديدة
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="إغلاق" onclick="cancelEdit()"></button>
+      </div>
+
+      <form id="entryForm" autocomplete="off" novalidate>
+        <div class="modal-body">
+
+          <!-- بيانات مشتركة -->
+          <div class="row g-3 mb-3">
+            <div class="col-6 col-md-3">
+              <label class="form-label">التاريخ <span class="text-danger">*</span></label>
+              <input type="date" id="fDate" class="form-control form-control-sm">
+            </div>
+            <div class="col-6 col-md-3">
+              <label class="form-label">نوع العملية <span class="text-danger">*</span></label>
+              <select id="fType" class="form-select form-select-sm" onchange="toggleTypeFields()">
+                <option value="send">⬆️ إرسال حوالة (صادر)</option>
+                <option value="receive">⬇️ استلام حوالة (وارد)</option>
+              </select>
+            </div>
+            <div class="col-6 col-md-3">
+              <label class="form-label">العملة <span class="text-danger">*</span></label>
+              <select id="fCurrency" class="form-select form-select-sm">
+                <option value="YER">ريال يمني (ر.ي)</option>
+                <option value="SAR">ريال سعودي (ر.س)</option>
+                <option value="USD">دولار أمريكي ($)</option>
+              </select>
+            </div>
+            <div class="col-6 col-md-3">
+              <label class="form-label">المبلغ <span class="text-danger">*</span></label>
+              <input type="number" id="fAmount" class="form-control form-control-sm" step="0.01" min="0" placeholder="0">
+            </div>
+          </div>
+
+          <!-- ============ حقول الإرسال ============ -->
+          <div id="sendFields">
+            <div class="field-group-title"><i class="bi bi-arrow-up-circle"></i> بيانات الإرسال</div>
+            <div class="row g-3">
+              <div class="col-6 col-md-3">
+                <label class="form-label">اسم المرسل <span class="text-danger">*</span></label>
+                <input type="text" id="fSenderName" class="form-control form-control-sm" placeholder="اسم المرسل">
+              </div>
+              <div class="col-6 col-md-3">
+                <label class="form-label">جوال المرسل</label>
+                <input type="text" id="fSenderPhone" class="form-control form-control-sm" dir="ltr" placeholder="7xxxxxxxx">
+              </div>
+              <div class="col-6 col-md-3">
+                <label class="form-label">اسم المستلم <span class="text-danger">*</span></label>
+                <input type="text" id="fReceiverName" class="form-control form-control-sm" placeholder="اسم المستلم">
+              </div>
+              <div class="col-6 col-md-3">
+                <label class="form-label">جوال المستلم</label>
+                <input type="text" id="fReceiverPhone" class="form-control form-control-sm" dir="ltr" placeholder="7xxxxxxxx">
+              </div>
+              <div class="col-6 col-md-3">
+                <label class="form-label">الغرض <span class="text-danger">*</span></label>
+                <select id="fPurpose" class="form-select form-select-sm">
+                  <option value="حوالة عائلية">حوالة عائلية</option>
+                  <option value="مصاريف شخصية">مصاريف شخصية</option>
+                  <option value="تجاري / أعمال">تجاري / أعمال</option>
+                  <option value="علاجي">علاجي</option>
+                  <option value="تعليمي / دراسي">تعليمي / دراسي</option>
+                  <option value="أخرى">أخرى</option>
+                </select>
+              </div>
+              <div class="col-6 col-md-3">
+                <label class="form-label">العمولة</label>
+                <input type="number" id="fCommission" class="form-control form-control-sm" step="0.01" min="0" placeholder="0" value="0">
+              </div>
+              <div class="col-6 col-md-3">
+                <label class="form-label">الحالة <span class="text-danger">*</span></label>
+                <select id="fSendStatus" class="form-select form-select-sm">
+                  <option value="cash">نقد</option>
+                  <option value="credit">آجل</option>
+                </select>
+              </div>
+              <div class="col-6 col-md-3">
+                <label class="form-label">الصراف المستلم (اختياري)</label>
+                <input type="text" id="fSendExchange" class="form-control form-control-sm" placeholder="اسم صراف الجهة المستلمة">
+              </div>
+              <div class="col-12">
+                <label class="form-label">ملاحظات</label>
+                <input type="text" id="fSendNote" class="form-control form-control-sm" placeholder="رقم الحوالة، تفاصيل إضافية...">
+              </div>
+            </div>
+          </div>
+
+          <!-- ============ حقول الاستلام ============ -->
+          <div id="receiveFields" class="d-none">
+            <div class="field-group-title"><i class="bi bi-arrow-down-circle"></i> بيانات الاستلام</div>
+            <div class="row g-3">
+              <div class="col-6 col-md-4">
+                <label class="form-label">رقم الحوالة <span class="text-danger">*</span></label>
+                <input type="text" id="fTransferNumber" class="form-control form-control-sm" dir="ltr" placeholder="رقم الحوالة">
+              </div>
+              <div class="col-6 col-md-4">
+                <label class="form-label">الحالة <span class="text-danger">*</span></label>
+                <select id="fRecvStatus" class="form-select form-select-sm">
+                  <option value="paid">تم الدفع</option>
+                  <option value="pending">لا زالت عند الصراف</option>
+                  <option value="other">أخرى</option>
+                </select>
+              </div>
+              <div class="col-6 col-md-4">
+                <label class="form-label">الصراف المرسل (اختياري)</label>
+                <input type="text" id="fRecvExchange" class="form-control form-control-sm" placeholder="اسم الصراف المُرسل">
+              </div>
+              <div class="col-6 col-md-3">
+                <label class="form-label">اسم المرسل</label>
+                <input type="text" id="fRSenderName" class="form-control form-control-sm" placeholder="اسم مُرسل الحوالة">
+              </div>
+              <div class="col-6 col-md-3">
+                <label class="form-label">جوال المرسل</label>
+                <input type="text" id="fRSenderPhone" class="form-control form-control-sm" dir="ltr" placeholder="7xxxxxxxx">
+              </div>
+              <div class="col-6 col-md-3">
+                <label class="form-label">اسم المستلم <span class="text-danger">*</span></label>
+                <input type="text" id="fRReceiverName" class="form-control form-control-sm" placeholder="اسم المستلم">
+              </div>
+              <div class="col-6 col-md-3">
+                <label class="form-label">جوال المستلم</label>
+                <input type="text" id="fRReceiverPhone" class="form-control form-control-sm" dir="ltr" placeholder="7xxxxxxxx">
+              </div>
+              <div class="col-12">
+                <label class="form-label">ملاحظات</label>
+                <input type="text" id="fRecvNote" class="form-control form-control-sm" placeholder="تفاصيل إضافية...">
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal" onclick="cancelEdit()">
+            إلغاء
+          </button>
+          <button type="button" class="btn btn-outline-secondary btn-sm" onclick="resetForm()">
+            تفريغ
+          </button>
+          <button type="submit" class="btn btn-success btn-sm px-3 fw-bold" id="btnSubmit">
+            <i class="bi bi-check2"></i> حفظ
+          </button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+/* =========================================================
+   سجل التحويلات اليومي
+   ========================================================= */
+
+const STORAGE_KEY = 'transferLedger_v2';
+
+const CURRENCIES = {
+  YER: { name:'ريال يمني',   symbol:'ر.ي', cls:'cur-YER' },
+  SAR: { name:'ريال سعودي',  symbol:'ر.س', cls:'cur-SAR' },
+  USD: { name:'دولار أمريكي', symbol:'$',   cls:'cur-USD' }
+};
+
+let data = [];
+let editId = null;
+let entryModal = null;
+
+/* ---------- أدوات ---------- */
+function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,8); }
+function todayStr(){
+  const d = new Date();
+  return new Date(d.getTime() - d.getTimezoneOffset()*60000).toISOString().slice(0,10);
+}
+function fmt(n){ return new Intl.NumberFormat('en-US',{ maximumFractionDigits:2 }).format(Number(n)||0); }
+function money(n, cur){ return fmt(n) + ' ' + (CURRENCIES[cur]?.symbol || ''); }
+function sum(arr, key){ return arr.reduce((a,b)=> a + (Number(b[key])||0), 0); }
+function esc(s){
+  return String(s ?? '').replace(/[&<>"']/g, m => (
+    {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]
+  ));
+}
+function fmtDateAr(iso){
+  if(!iso) return '';
+  const [y,m,d] = iso.split('-');
+  return `${d}/${m}/${y}`;
+}
+
+/* ---------- التخزين ---------- */
+function load(){
+  try{
+    data = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+    if(!Array.isArray(data)) data = [];
+  }catch(e){ data = []; }
+}
+function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
+
+/* ---------- عناصر ---------- */
+const dateInput      = document.getElementById('dateInput');
+const searchInput    = document.getElementById('searchInput');
+const filterCurrency = document.getElementById('filterCurrency');
+const filterType     = document.getElementById('filterType');
+const filterStatus   = document.getElementById('filterStatus');
+const chkAllDates    = document.getElementById('chkAllDates');
+const summaryBody    = document.getElementById('summaryBody');
+const summaryScope   = document.getElementById('summaryScope');
+const tableBody      = document.getElementById('tableBody');
+const countBadge     = document.getElementById('countBadge');
+const entryForm      = document.getElementById('entryForm');
+const modalTitle     = document.getElementById('modalTitle');
+const btnSubmit      = document.getElementById('btnSubmit');
+
+/* ---------- التنقل ---------- */
+function shiftDay(step){
+  const d = new Date(dateInput.value + 'T00:00:00');
+  d.setDate(d.getDate() + step);
+  dateInput.value = new Date(d.getTime() - d.getTimezoneOffset()*60000).toISOString().slice(0,10);
+  render();
+}
+
+/* ---------- الفلترة ---------- */
+function getDateScoped(){
+  if(chkAllDates.checked) return data.slice();
+  return data.filter(t => t.date === dateInput.value);
+}
+
+function getFiltered(){
+  const q     = searchInput.value.trim().toLowerCase();
+  const fcur  = filterCurrency.value;
+  const ftype = filterType.value;
+  const fstat = filterStatus.value;
+
+  return getDateScoped().filter(t => {
+    if(fcur  && t.currency !== fcur) return false;
+    if(ftype && t.type !== ftype)    return false;
+    if(fstat){
+      if(fstat === 'credit_open'){
+        if(!(t.type === 'send' && t.status === 'credit' && !t.settled)) return false;
+      } else {
+        if(t.status !== fstat) return false;
+      }
+    }
+    if(q){
+      const hay = [
+        t.senderName, t.senderPhone, t.receiverName, t.receiverPhone,
+        t.transferNumber, t.purpose, t.exchange, t.note
+      ].join(' ').toLowerCase();
+      if(!hay.includes(q)) return false;
+    }
+    return true;
+  }).sort((a,b) => a.date === b.date ? a.createdAt - b.createdAt : a.date.localeCompare(b.date));
+}
+
+/* ---------- ملخص ---------- */
+function renderSummary(){
+  const rows = getDateScoped();
+  summaryScope.textContent = chkAllDates.checked
+    ? 'كل التواريخ'
+    : 'تاريخ: ' + fmtDateAr(dateInput.value);
+
+  let totals = { sCnt:0, sCash:0, sCredit:0, rCnt:0, rPaid:0, rPending:0 };
+
+  summaryBody.innerHTML = Object.keys(CURRENCIES).map(cur => {
+    const meta = CURRENCIES[cur];
+    const r    = rows.filter(t => t.currency === cur);
+    const sends = r.filter(t => t.type === 'send');
+    const recvs = r.filter(t => t.type === 'receive');
+
+    const sCash = sum(sends.filter(t => t.status === 'cash'),   'amount');
+    const sCr   = sum(sends.filter(t => t.status === 'credit'), 'amount');
+    const rPaid = sum(recvs.filter(t => t.status === 'paid'),   'amount');
+    const rPend = sum(recvs.filter(t => t.status === 'pending'),'amount');
+
+    totals.sCnt     += sends.length;
+    totals.sCash    += sCash;
+    totals.sCredit  += sCr;
+    totals.rCnt     += recvs.length;
+    totals.rPaid    += rPaid;
+    totals.rPending += rPend;
+
+    return `
+      <tr class="${meta.cls}">
+        <td class="cur-name"><span class="dot"></span>${meta.name} <small class="text-muted">(${meta.symbol})</small></td>
+        <td>${sends.length}</td>
+        <td class="val-send-cash">${fmt(sCash)}</td>
+        <td class="val-send-credit">${fmt(sCr)}</td>
+        <td>${recvs.length}</td>
+        <td class="val-recv-paid">${fmt(rPaid)}</td>
+        <td class="val-recv-pending">${fmt(rPend)}</td>
+      </tr>`;
+  }).join('') + `
+      <tr class="table-secondary fw-bold">
+        <td class="cur-name"><i class="bi bi-calculator"></i> الإجمالي</td>
+        <td>${totals.sCnt}</td>
+        <td class="val-send-cash">${fmt(totals.sCash)}</td>
+        <td class="val-send-credit">${fmt(totals.sCredit)}</td>
+        <td>${totals.rCnt}</td>
+        <td class="val-recv-paid">${fmt(totals.rPaid)}</td>
+        <td class="val-recv-pending">${fmt(totals.rPending)}</td>
+      </tr>`;
+}
+
+/* ---------- جدول العمليات ---------- */
+function renderTable(){
+  const rows = getFiltered();
+  countBadge.textContent = rows.length + ' عملية';
+
+  if(!rows.length){
+    tableBody.innerHTML = `
+      <tr><td colspan="11" class="empty-state">
+        <i class="bi bi-inbox" style="font-size:2rem;display:block;margin-bottom:.5rem"></i>
+        لا توجد عمليات مطابقة
+      </td></tr>`;
+    return;
+  }
+
+  tableBody.innerHTML = rows.map((t, i) => {
+    let typeBadge, colSender, colReceiver, colExtra, colStatus, colCommission;
+
+    if(t.type === 'send'){
+      typeBadge = '<span class="badge badge-send">إرسال</span>';
+      colSender = `
+        <div class="fw-semibold">${esc(t.senderName) || '—'}</div>
+        ${t.senderPhone ? `<div class="text-muted small" dir="ltr">${esc(t.senderPhone)}</div>` : ''}`;
+      colReceiver = `
+        <div>${esc(t.receiverName) || '—'}</div>
+        ${t.receiverPhone ? `<div class="text-muted small" dir="ltr">${esc(t.receiverPhone)}</div>` : ''}`;
+      colExtra = `
+        <span class="badge bg-light text-dark">${esc(t.purpose) || '—'}</span>
+        ${t.exchange ? `<div class="text-muted small mt-1"><i class="bi bi-bank"></i> ${esc(t.exchange)}</div>` : ''}`;
+
+      if(t.status === 'cash'){
+        colStatus = '<span class="badge badge-cash">نقد</span>';
+      } else if(t.settled){
+        colStatus = '<span class="badge badge-settled">آجل — مسدد</span>';
+      } else {
+        colStatus = '<span class="badge badge-credit">آجل غير مسدد</span>';
+      }
+      colCommission = t.commission ? fmt(t.commission) : '—';
+    }
+    else {
+      typeBadge = '<span class="badge badge-recv">استلام</span>';
+      colSender = `
+        <div>${esc(t.senderName) || '<span class="text-muted">—</span>'}</div>
+        ${t.senderPhone ? `<div class="text-muted small" dir="ltr">${esc(t.senderPhone)}</div>` : ''}
+        ${t.exchange ? `<div class="text-muted small mt-1"><i class="bi bi-bank"></i> ${esc(t.exchange)}</div>` : ''}`;
+      colReceiver = `
+        <div class="fw-semibold">${esc(t.receiverName) || '—'}</div>
+        ${t.receiverPhone ? `<div class="text-muted small" dir="ltr">${esc(t.receiverPhone)}</div>` : ''}`;
+      colExtra = `<code class="text-primary">${esc(t.transferNumber) || '—'}</code>`;
+
+      if(t.status === 'paid')         colStatus = '<span class="badge badge-paid">تم الدفع</span>';
+      else if(t.status === 'pending') colStatus = '<span class="badge badge-pending">عند الصراف</span>';
+      else                            colStatus = '<span class="badge badge-other">أخرى</span>';
+
+      colCommission = '—';
+    }
+
+    // زر تسوية الآجل للإرسال فقط
+    const settleBtn = (t.type === 'send' && t.status === 'credit')
+      ? `<button class="btn btn-outline-${t.settled?'secondary':'success'} btn-icon"
+                 data-act="settle" data-id="${t.id}"
+                 title="${t.settled?'إرجاع إلى غير مسدد':'تسوية (تم السداد)'}">
+           <i class="bi bi-${t.settled?'arrow-counterclockwise':'check2-circle'}"></i>
+         </button>`
+      : '';
+
+    return `
+      <tr class="${t.type==='send' && t.status==='credit' && !t.settled ? 'table-warning' : ''}">
+        <td class="text-muted">${i+1}</td>
+        <td class="text-nowrap">${fmtDateAr(t.date)}</td>
+        <td>${typeBadge}</td>
+        <td>${colSender}</td>
+        <td>${colReceiver}</td>
+        <td>${colExtra}</td>
+        <td class="text-end num">${money(t.amount, t.currency)}</td>
+        <td class="text-end num text-warning-emphasis">${colCommission}</td>
+        <td>${colStatus}</td>
+        <td class="text-muted small">${esc(t.note) || ''}</td>
+        <td class="no-print text-nowrap">
+          ${settleBtn}
+          <button class="btn btn-outline-primary btn-icon" data-act="edit" data-id="${t.id}" title="تعديل">
+            <i class="bi bi-pencil"></i>
+          </button>
+          <button class="btn btn-outline-danger btn-icon" data-act="del" data-id="${t.id}" title="حذف">
+            <i class="bi bi-trash"></i>
+          </button>
+        </td>
+      </tr>`;
+  }).join('');
+}
+
+function render(){ renderSummary(); renderTable(); }
+
+/* =========================================================
+   تبديل الحقول حسب النوع
+   ========================================================= */
+function toggleTypeFields(){
+  const type = document.getElementById('fType').value;
+  const sendBox = document.getElementById('sendFields');
+  const recvBox = document.getElementById('receiveFields');
+
+  if(type === 'send'){
+    sendBox.classList.remove('d-none');
+    recvBox.classList.add('d-none');
+  } else {
+    sendBox.classList.add('d-none');
+    recvBox.classList.remove('d-none');
+  }
+}
+
+/* =========================================================
+   المودال
+   ========================================================= */
+function prepareAdd(){
+  cancelEdit();
+  document.getElementById('fDate').value = dateInput.value || todayStr();
+  toggleTypeFields();
+}
+
+entryForm.addEventListener('submit', e => {
+  e.preventDefault();
+
+  const type    = document.getElementById('fType').value;
+  const amount  = parseFloat(document.getElementById('fAmount').value);
+  const date    = document.getElementById('fDate').value;
+  const currency= document.getElementById('fCurrency').value;
+
+  // تحقق أساسي
+  if(!date){ alert('الرجاء تحديد التاريخ'); return; }
+  if(!(amount > 0)){ alert('الرجاء إدخال مبلغ صحيح أكبر من صفر'); return; }
+
+  let record = {
+    id:        editId || uid(),
+    date, type, currency, amount,
+    createdAt: editId ? (data.find(x=>x.id===editId)?.createdAt || Date.now()) : Date.now(),
+    settled:   editId ? (data.find(x=>x.id===editId)?.settled || false) : false,
+  };
+
+  if(type === 'send'){
+    const senderName   = document.getElementById('fSenderName').value.trim();
+    const receiverName = document.getElementById('fReceiverName').value.trim();
+    const purpose      = document.getElementById('fPurpose').value;
+
+    if(!senderName){ alert('الرجاء إدخال اسم المرسل'); return; }
+    if(!receiverName){ alert('الرجاء إدخال اسم المستلم'); return; }
+
+    record = {
+      ...record,
+      senderName,
+      senderPhone:   document.getElementById('fSenderPhone').value.trim(),
+      receiverName,
+      receiverPhone: document.getElementById('fReceiverPhone').value.trim(),
+      purpose,
+      commission:    parseFloat(document.getElementById('fCommission').value) || 0,
+      status:        document.getElementById('fSendStatus').value, // cash | credit
+      exchange:      document.getElementById('fSendExchange').value.trim(),
+      note:          document.getElementById('fSendNote').value.trim(),
+      transferNumber:''
+    };
+  } else {
+    const transferNumber = document.getElementById('fTransferNumber').value.trim();
+    const receiverName   = document.getElementById('fRReceiverName').value.trim();
+
+    if(!transferNumber){ alert('الرجاء إدخال رقم الحوالة'); return; }
+    if(!receiverName){ alert('الرجاء إدخال اسم المستلم'); return; }
+
+    record = {
+      ...record,
+      transferNumber,
+      senderName:    document.getElementById('fRSenderName').value.trim(),
+      senderPhone:   document.getElementById('fRSenderPhone').value.trim(),
+      receiverName,
+      receiverPhone: document.getElementById('fRReceiverPhone').value.trim(),
+      status:        document.getElementById('fRecvStatus').value, // paid | pending | other
+      exchange:      document.getElementById('fRecvExchange').value.trim(),
+      note:          document.getElementById('fRecvNote').value.trim(),
+      commission:    0,
+      purpose:       ''
+    };
+  }
+
+  if(editId){
+    data = data.map(t => t.id === editId ? record : t);
+  } else {
+    data.push(record);
+  }
+
+  save();
+  render();
+  entryModal.hide();
+  cancelEdit();
+});
+
+function resetForm(){
+  const keepDate = document.getElementById('fDate').value;
+  const keepType = document.getElementById('fType').value;
+  entryForm.reset();
+  document.getElementById('fDate').value   = keepDate || dateInput.value || todayStr();
+  document.getElementById('fType').value   = keepType;
+  document.getElementById('fCommission').value = 0;
+  toggleTypeFields();
+  document.getElementById('fAmount').focus();
+}
+
+function startEdit(id){
+  const t = data.find(x => x.id === id);
+  if(!t) return;
+
+  editId = id;
+
+  document.getElementById('fDate').value     = t.date;
+  document.getElementById('fType').value     = t.type;
+  document.getElementById('fCurrency').value = t.currency;
+  document.getElementById('fAmount').value   = t.amount;
+
+  toggleTypeFields();
+
+  if(t.type === 'send'){
+    document.getElementById('fSenderName').value      = t.senderName || '';
+    document.getElementById('fSenderPhone').value     = t.senderPhone || '';
+    document.getElementById('fReceiverName').value    = t.receiverName || '';
+    document.getElementById('fReceiverPhone').value   = t.receiverPhone || '';
+    document.getElementById('fPurpose').value         = t.purpose || 'حوالة عائلية';
+    document.getElementById('fCommission').value      = t.commission || 0;
+    document.getElementById('fSendStatus').value      = t.status || 'cash';
+    document.getElementById('fSendExchange').value    = t.exchange || '';
+    document.getElementById('fSendNote').value        = t.note || '';
+  } else {
+    document.getElementById('fTransferNumber').value  = t.transferNumber || '';
+    document.getElementById('fRecvStatus').value      = t.status || 'paid';
+    document.getElementById('fRecvExchange').value    = t.exchange || '';
+    document.getElementById('fRSenderName').value     = t.senderName || '';
+    document.getElementById('fRSenderPhone').value    = t.senderPhone || '';
+    document.getElementById('fRReceiverName').value   = t.receiverName || '';
+    document.getElementById('fRReceiverPhone').value  = t.receiverPhone || '';
+    document.getElementById('fRecvNote').value        = t.note || '';
+  }
+
+  modalTitle.innerHTML = '<i class="bi bi-pencil-square"></i> تعديل العملية';
+  btnSubmit.innerHTML  = '<i class="bi bi-save"></i> حفظ التعديل';
+  btnSubmit.classList.replace('btn-success','btn-primary');
+
+  entryModal.show();
+}
+
+function cancelEdit(){
+  editId = null;
+  modalTitle.innerHTML = '<i class="bi bi-plus-circle"></i> إضافة عملية جديدة';
+  btnSubmit.innerHTML  = '<i class="bi bi-check2"></i> حفظ';
+  btnSubmit.classList.replace('btn-primary','btn-success');
+  entryForm.reset();
+  document.getElementById('fDate').value = dateInput.value || todayStr();
+  document.getElementById('fType').value = 'send';
+  document.getElementById('fCommission').value = 0;
+  toggleTypeFields();
+}
+
+/* ---------- أزرار الجدول ---------- */
+tableBody.addEventListener('click', e => {
+  const btn = e.target.closest('button[data-act]');
+  if(!btn) return;
+  const { act, id } = btn.dataset;
+
+  if(act === 'del'){
+    const t = data.find(x => x.id === id);
+    if(confirm(`تأكيد حذف عملية "${t?.receiverName || t?.senderName || ''}" بمبلغ ${t ? money(t.amount,t.currency) : ''}؟`)){
+      data = data.filter(x => x.id !== id);
+      if(editId === id) cancelEdit();
+      save(); render();
+    }
+  }
+  else if(act === 'edit') startEdit(id);
+  else if(act === 'settle'){
+    const t = data.find(x => x.id === id);
+    if(t){ t.settled = !t.settled; save(); render(); }
+  }
+});
+
+/* =========================================================
+   التصدير CSV
+   ========================================================= */
+function csvCell(v){ return '"' + String(v ?? '').replace(/"/g,'""') + '"'; }
+
+function exportCSV(){
+  const rows = getFiltered();
+  if(!rows.length){ alert('لا توجد بيانات للتصدير'); return; }
+
+  const headers = ['التاريخ','النوع','رقم الحوالة','المرسل','جوال المرسل',
+                   'المستلم','جوال المستلم','الغرض','المبلغ','العملة',
+                   'العمولة','الحالة','حالة السداد','الصراف','ملاحظات'];
+
+  const lines = [headers.map(csvCell).join(',')];
+
+  const statusAr = (t) => {
+    if(t.type === 'send')   return t.status === 'cash' ? 'نقد' : 'آجل';
+    if(t.status === 'paid') return 'تم الدفع';
+    if(t.status === 'pending') return 'عند الصراف';
+    return 'أخرى';
+  };
+
+  rows.forEach(t => {
+    lines.push([
+      t.date,
+      t.type === 'send' ? 'إرسال' : 'استلام',
+      t.transferNumber || '',
+      t.senderName || '',
+      t.senderPhone || '',
+      t.receiverName || '',
+      t.receiverPhone || '',
+      t.purpose || '',
+      t.amount,
+      CURRENCIES[t.currency]?.name || t.currency,
+      t.commission || 0,
+      statusAr(t),
+      (t.type==='send' && t.status==='credit') ? (t.settled ? 'مسدد' : 'غير مسدد') : '',
+      t.exchange || '',
+      t.note || ''
+    ].map(csvCell).join(','));
+  });
+
+  const blob = new Blob(['\uFEFF' + lines.join('\r\n')], { type:'text/csv;charset=utf-8;' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  const scope = chkAllDates.checked ? 'كل-التواريخ' : dateInput.value;
+  a.href = url;
+  a.download = `سجل-التحويلات-${scope}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+/* =========================================================
+   التهيئة
+   ========================================================= */
+[dateInput, searchInput, filterCurrency, filterType, filterStatus, chkAllDates]
+  .forEach(el => el.addEventListener('input', render));
+
+dateInput.addEventListener('change', () => {
+  if(!editId) document.getElementById('fDate').value = dateInput.value;
+  render();
+});
+
+(function init(){
+  load();
+  entryModal = new bootstrap.Modal(document.getElementById('entryModal'));
+  dateInput.value = todayStr();
+  document.getElementById('fDate').value = dateInput.value;
+  toggleTypeFields();
+  render();
+})();
+</script>
+</body>
+</html>
